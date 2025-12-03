@@ -169,22 +169,21 @@
         }
 
         function confirmRemove(index) {
-            if (confirm('למחוק שחקן "' + players[index].name + '"?')) {
+            if (confirm('האם למחוק שחקן בשם "' + players[index].name + '"?')) {
                 players.splice(index, 1);
                 saveData();
                 renderTable();
             }
         }
 
-       function sortPlayers() {
-               players.sort((a, b) => b.amount - a.amount);
-               saveData();
-               renderTable();
-            }
+        function sortPlayers() {
+            players.sort((a, b) => b.amount - a.amount);
+            saveData();
+            renderTable();
         }
 
         function resetMoneyOnly() {
-            if (confirm('אפס כל הכספים?')) {
+            if (confirm('האם לאפס את כל הכספים?')) {
                 players.forEach(p => p.amount = 0);
                 saveData();
                 renderTable();
@@ -192,7 +191,7 @@
         }
 
         function fullReset() {
-            if (confirm('מחק הכל?')) {
+            if (confirm('אתה בטוח שאתה רוצה למחוק את כל הטבלה?')) {
                 initPlayers();
                 renderTable();
             }
