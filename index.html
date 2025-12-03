@@ -7,24 +7,13 @@
     <meta name="theme-color" content="#0f2027">
     <title>Poker Club - מחשבון כניסות</title>
     <style>
-        :root {
-            --bg-main: #0f2027;
-            --bg-panel: #ffffff;
-            --text-main: #000000;
-        }
-        body.dark-mode {
-            --bg-main: #111827;
-            --bg-panel: #121212;
-            --text-main: #f5f5f5;
-        }
-
         * { box-sizing: border-box; }
         body { 
             font-family: Arial, sans-serif;
             max-width: 600px; margin: 0 auto; padding: 10px; 
-            background: linear-gradient(135deg, var(--bg-main) 0%, #203a43 50%, #2c5364 100%);
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
             direction: rtl; min-height: 100vh;
-            color: var(--text-main);
+            color: #000000;
         }
         .header { text-align: center; margin-bottom: 12px; }
         .logo { font-size: 2.5em; margin-bottom: 4px; }
@@ -63,16 +52,23 @@
             display: block;
             margin: 4px auto 0 auto;
         }
-        .table-container { max-height: 280px; overflow-y: auto; background: var(--bg-panel); border-radius: 12px; margin-bottom: 12px; }
+        /* רקע טבלה וקופה – אפור בהיר נעים במקום לבן בוהק */
+        .table-container { 
+            max-height: 280px; 
+            overflow-y: auto; 
+            background: #f3f4f6; 
+            border-radius: 12px; 
+            margin-bottom: 12px; 
+        }
         .table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        th, td { padding: 5px 4px; text-align: center; border-bottom: 1px solid #eee; font-size: 12px; line-height: 1.2; }
-        th { background: #f8f9fa; font-weight: bold; position: sticky; top: 0; font-size: 11px; padding: 6px 4px; }
+        th, td { padding: 5px 4px; text-align: center; border-bottom: 1px solid #e0e0e0; font-size: 12px; line-height: 1.2; }
+        th { background: #e5e7eb; font-weight: bold; position: sticky; top: 0; font-size: 11px; padding: 6px 4px; }
         th:nth-child(1), td:nth-child(1) { width: 40%; }
         th:nth-child(2), td:nth-child(2) { width: 20%; }
         th:nth-child(3), td:nth-child(3) { width: 40%; }
-        tr:hover { background: #f5f5f5; }
+        tr:hover { background: #e9edf3; }
         .controls { display: flex; justify-content: center; align-items: center; gap: 4px; }
-        .stats { background: var(--bg-panel); padding: 15px; border-radius: 12px; text-align: center; }
+        .stats { background: #f3f4f6; padding: 15px; border-radius: 12px; text-align: center; }
         .total-amount { font-size: 18px; font-weight: bold; color: #2196F3; margin: 8px 0; }
         .side-pot { font-size: 13px; color: #f44336; margin: 4px 0 0 0; }
         .credit-text {
@@ -94,7 +90,7 @@
         }
     </style>
 </head>
-<body class="light-mode">
+<body>
     <div class="header">
         <div class="logo">
             <!-- סדר חדש משמאל לימין: מעויין, עלה, לב, תלתן -->
@@ -102,7 +98,6 @@
         </div>
         <h1>Poker Club</h1>
         <p>מחשבון כניסות לפוקר - לחץ +100₪ בכל ביי-אין</p>
-        <button id="themeToggle" class="btn-small" style="margin-top:6px;" onclick="toggleTheme()">מצב לילה</button>
     </div>
 
     <div class="input-group">
@@ -292,30 +287,6 @@
             }
         }
 
-        // מצב לילה
-        function applySavedTheme() {
-            const saved = localStorage.getItem("pokerClubTheme");
-            if (saved === "dark") {
-                document.body.classList.remove("light-mode");
-                document.body.classList.add("dark-mode");
-            } else {
-                document.body.classList.remove("dark-mode");
-                document.body.classList.add("light-mode");
-            }
-        }
-
-        function toggleTheme() {
-            if (document.body.classList.contains("dark-mode")) {
-                document.body.classList.remove("dark-mode");
-                document.body.classList.add("light-mode");
-                localStorage.setItem("pokerClubTheme", "light");
-            } else {
-                document.body.classList.remove("light-mode");
-                document.body.classList.add("dark-mode");
-                localStorage.setItem("pokerClubTheme", "dark");
-            }
-        }
-
         // פופ אפ הסרת שחקנים
         function openRemovePopup() {
             const overlay = document.getElementById("removePopupOverlay");
@@ -393,7 +364,6 @@
         }
 
         window.onload = function() {
-            applySavedTheme();
             loadData();
             sortPlayers();
             renderTable();
