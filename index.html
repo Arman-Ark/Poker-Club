@@ -29,6 +29,19 @@
         .btn-secondary { background: #2196F3; color: white; min-width: 60px; }
         .btn-danger { background: #f44336; color: white; min-width: 40px; }
         .btn-small { background: #757575; color: white; min-width: 30px; padding: 6px 8px; font-size: 12px; }
+        .btn-active-toggle {
+            background: #4caf50;
+            color: white;
+            min-width: 30px;
+            padding: 6px 8px;
+            font-size: 12px;
+            opacity: 0.3;
+            transition: opacity 0.2s, box-shadow 0.2s;
+        }
+        .btn-active-toggle.active {
+            opacity: 1;
+            box-shadow: 0 0 6px rgba(76, 175, 80, 0.9);
+        }
         .btn-sort { background: #FF9800; color: white; width: 100%; margin-bottom: 8px; padding: 10px; font-size: 13px; }
         .btn-reset-money { background: #FF5722; color: white; width: 100%; margin-bottom: 8px; padding: 10px; font-size: 13px; }
         .full-reset-btn { background: #f44336; color: white; width: 100%; padding: 10px; margin-top: 8px; font-size: 13px; }
@@ -43,6 +56,13 @@
         .controls { display: flex; justify-content: center; align-items: center; gap: 4px; }
         .stats { background: white; padding: 15px; border-radius: 12px; text-align: center; }
         .total-amount { font-size: 18px; font-weight: bold; color: #2196F3; margin: 8px 0; }
+        .side-pot { font-size: 13px; color: #f44336; margin: 4px 0 0 0; }
+        .credit-text {
+            margin-top: 8px;
+            font-size: 10px;
+            color: rgba(255,255,255,0.7);
+            text-align: center;
+        }
         @media (max-height: 600px) {
             .table-container { max-height: 250px; }
         }
@@ -59,7 +79,8 @@
 <body>
     <div class="header">
         <div class="logo">
-            <span class="spade">♠️</span><span class="heart">♥️</span><span class="diamond">♦️</span><span class="club">♣️</span>
+            <!-- סדר חדש משמאל לימין: תלתן, לב, עלה, מעויין -->
+            <span class="club">♣️</span><span class="heart">♥️</span><span class="spade">♠️</span><span class="diamond">♦️</span>
         </div>
         <h1>Poker Club</h1>
         <p>מחשבון כניסות לפוקר - לחץ +100₪ בכל ביי-אין</p>
@@ -71,7 +92,7 @@
     </div>
 
     <button class="btn-sort" onclick="sortPlayers()">מי הכי מושקע הערב?</button>
-    <button class="btn-reset-money" onclick="resetMoneyOnly()">אפס כניסות</button>
+    <button class="btn-reset-money" onclick="resetMoneyOnly()">איפוס כניסות</button>
 
     <div class="table-container">
         <table class="table" id="playersTable">
@@ -88,8 +109,16 @@
 
     <div class="stats" id="statsDiv">
         <div>סה"כ שחקנים: <span id="totalPlayers">0</span></div>
+        <div>פעילים: <span id="activePlayers">0</span></div>
         <div class="total-amount">סך הכל קופה: <span id="totalAmount">0</span> ₪</div>
+        <div id="sidePotRow" class="side-pot" style="display:none;">
+            קופה לא פעילה: <span id="sidePotAmount">0</span> ₪
+        </div>
         <button class="full-reset-btn" onclick="fullReset()">מחק הכל</button>
+    </div>
+
+    <div class="credit-text">
+        תשחקו, תתרגשו, תהנו והעיקר תרוויחו :) @credit: Arman-Ark
     </div>
 
     <script>
@@ -101,7 +130,11 @@
                 "שגיא", "ניסים", "איציק", "מיטב", "אלעד", 
                 "רון", "דור", "אוראל"
             ];
-            players = defaultPlayers.map(name => ({name: name, amount: 0}));
+            players = defaultPlayers.map(name => ({
+                name: name,
+                amount: 0,
+                active: false // ברירת מחדל: לא פעיל עד שסימנו וי
+            }));
             saveData();
         }
 
@@ -114,6 +147,12 @@
                 const saved = localStorage.getItem("pokerClubPlayers");
                 if (saved) {
                     players = JSON.parse(saved);
+                    // וידוא שאם נתונים ישנים בלי active נטענו, נוסיף שדה
+                    players.forEach(p => {
+                        if (typeof p.active === "undefined") {
+                            p.active = false;
+                        }
+                    });
                 } else {
                     initPlayers();
                 }
@@ -134,21 +173,44 @@
                         <div class="controls">
                             <button class="btn-secondary" onclick="addMoney(${index})">+100</button>
                             <button class="btn-danger" onclick="removeMoney(${index})">-</button>
-                            <button class="btn-small" onclick="confirmRemove(${index})">×</button>
+                            <button class="btn-active-toggle ${player.active ? 'active' : ''}" onclick="toggleActive(${index})">✔</button>
                         </div>
                     </td>
                 `;
             });
+
             document.getElementById("totalPlayers").textContent = players.length;
-            document.getElementById("totalAmount").textContent = 
-                players.reduce((sum, p) => sum + p.amount, 0).toLocaleString();
+
+            // קופה ראשית – רק שחקנים פעילים
+            const totalMain = players
+                .filter(p => p.active)
+                .reduce((sum, p) => sum + p.amount, 0);
+
+            // קופה צדדית – שחקנים לא פעילים עם סכום > 0
+            const totalSide = players
+                .filter(p => !p.active)
+                .reduce((sum, p) => sum + p.amount, 0);
+
+            document.getElementById("totalAmount").textContent = totalMain.toLocaleString();
+
+            const sideRow = document.getElementById("sidePotRow");
+            const sideSpan = document.getElementById("sidePotAmount");
+            if (totalSide > 0) {
+                sideSpan.textContent = totalSide.toLocaleString();
+                sideRow.style.display = "block";
+            } else {
+                sideRow.style.display = "none";
+            }
+
+            const activeCount = players.filter(p => p.active).length;
+            document.getElementById("activePlayers").textContent = activeCount;
         }
 
         function addPlayer() {
             const input = document.getElementById("playerName");
             const name = input.value.trim();
             if (name) {
-                players.push({name: name, amount: 0});
+                players.push({name: name, amount: 0, active: false});
                 input.value = "";
                 saveData();
                 renderTable();
@@ -175,6 +237,12 @@
                 saveData();
                 renderTable();
             }
+        }
+
+        function toggleActive(index) {
+            players[index].active = !players[index].active;
+            saveData();
+            renderTable();
         }
 
         function sortPlayers() {
