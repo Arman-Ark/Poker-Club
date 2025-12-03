@@ -45,14 +45,14 @@
         }
         .btn-sort { background: #FF9800; color: white; width: 100%; margin-bottom: 8px; padding: 10px; font-size: 13px; }
         .btn-reset-money { background: #FF5722; color: white; width: 100%; margin-bottom: 8px; padding: 10px; font-size: 13px; }
-        .full-reset-btn { background: #f44336; color: white; padding: 8px 14px; margin-top: 6px; font-size: 13px; }
-        .bottom-btn {
-            width: fit-content;
-            white-space: nowrap;
-            display: block;
-            margin: 4px auto 0 auto;
+        .full-reset-btn { background: #f44336; color: white; padding: 8px 14px; font-size: 13px; }
+        .bottom-btn-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
         }
-        /* רקע טבלה וקופה – אפור בהיר נעים במקום לבן בוהק */
         .table-container { 
             max-height: 280px; 
             overflow-y: auto; 
@@ -77,6 +77,39 @@
             color: rgba(255,255,255,0.7);
             text-align: center;
         }
+        /* פופאפ ברוכים הבאים */
+        #welcomeOverlay {
+            display:none;
+            position:fixed;
+            inset:0;
+            background:rgba(0,0,0,0.6);
+            z-index:1000;
+            justify-content:center;
+            align-items:center;
+        }
+        #welcomeBox {
+            background:#ffffff;
+            max-width:420px;
+            width:90%;
+            border-radius:12px;
+            padding:14px;
+            box-shadow:0 4px 12px rgba(0,0,0,0.4);
+            text-align:center;
+            font-size:13px;
+        }
+        #welcomeTitle {
+            margin:0 0 8px 0;
+            font-size:20px;
+            font-weight:bold;
+        }
+        #welcomeBox p {
+            margin:4px 0;
+        }
+        #welcomeCredit {
+            margin-top:8px;
+            font-weight:bold;
+        }
+
         @media (max-height: 600px) {
             .table-container { max-height: 250px; }
         }
@@ -91,6 +124,17 @@
     </style>
 </head>
 <body>
+    <div id="welcomeOverlay">
+        <div id="welcomeBox">
+            <div id="welcomeTitle">♧◇ Poker Club ♧♡</div>
+            <p>ברוכים הבאים למחשבון הפוקר</p>
+            <p>תהנו, תשמחו, תשחקו, תתרגשו והעיקר תרוויחו יא כבשים יקרים 💰💰💰</p>
+            <p>האפליקציה נבנתה בהשקעה ובאהבה מלאה בשביל הנוחיות שלכם</p>
+            <p id="welcomeCredit">Dev: ☆ Arman-Ark ☆</p>
+            <p style="margin-top:6px; font-size:12px; color:#555;">הקשה בכל מקום על המסך תסגור חלון זה.</p>
+        </div>
+    </div>
+
     <div class="header">
         <div class="logo">
             <!-- סדר חדש משמאל לימין: מעויין, עלה, לב, תלתן -->
@@ -126,14 +170,15 @@
         <div>פעילים: <span id="activePlayers">0</span></div>
         <div class="total-amount">סך הכל קופה: <span id="totalAmount">0</span> ₪</div>
         <div id="sidePotRow" class="side-pot" style="display:none;">
-            קופה לא פעילה: <span id="sidePotAmount">0</span> ₪
+            קופה לא פעילה: <span id="sidePotAmount">0</span> ₪</div>
+        <div class="bottom-btn-row">
+            <button class="full-reset-btn" onclick="openRemovePopup()">הסרת שחקנים</button>
+            <button class="full-reset-btn" onclick="fullReset()">מחק הכל</button>
         </div>
-        <button class="full-reset-btn bottom-btn" onclick="openRemovePopup()">הסרת שחקנים</button>
-        <button class="full-reset-btn bottom-btn" onclick="fullReset()">מחק הכל</button>
     </div>
 
     <div class="credit-text">
-        תשחקו, תתרגשו, תהנו והעיקר תרוויחו :) @credit: Arman-Ark
+        תשחקו, תתרגשו, תהנו והעיקר תרוויחו :) credit: ✵ Arman-Ark ✵
     </div>
 
     <!-- פופ אפ להסרת שחקנים -->
@@ -287,6 +332,18 @@
             }
         }
 
+        // פופאפ ברוכים הבאים – פעם אחת לכל מכשיר
+        function showWelcomeIfNeeded() {
+            if (!localStorage.getItem("pokerClubWelcomeShown")) {
+                const overlay = document.getElementById("welcomeOverlay");
+                overlay.style.display = "flex";
+                overlay.addEventListener("click", function() {
+                    overlay.style.display = "none";
+                    localStorage.setItem("pokerClubWelcomeShown", "1");
+                }, { once: true });
+            }
+        }
+
         // פופ אפ הסרת שחקנים
         function openRemovePopup() {
             const overlay = document.getElementById("removePopupOverlay");
@@ -367,6 +424,7 @@
             loadData();
             sortPlayers();
             renderTable();
+            showWelcomeIfNeeded();
             document.getElementById("playerName").addEventListener("keypress", function(e) {
                 if (e.key === "Enter") addPlayer();
             });
