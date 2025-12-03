@@ -181,19 +181,6 @@
             renderTable();
         }
 
-        // מיון אוטומטי כשעוזבים את האפליקציה (יוצאים/ממזערים)
-        window.addEventListener('visibilitychange', function () {
-            try {
-                if (document.visibilityState === 'hidden' && Array.isArray(players)) {
-                    players.sort(function (a, b) { return b.amount - a.amount; });
-                    saveData();
-                    renderTable();
-                }
-            } catch (e) {
-                console.error('auto-sort on hide failed', e);
-            }
-        });
-
         function resetMoneyOnly() {
             if (confirm('האם לאפס את כל הכספים?')) {
                 players.forEach(p => p.amount = 0);
@@ -211,6 +198,7 @@
 
         window.onload = function() {
             loadData();
+            sortPlayers(); // ממיין תמיד בטעינה לפי הכי מושקע
             renderTable(); // מציג את הרשימה מיד בלי ללחוץ כלום
             document.getElementById("playerName").addEventListener("keypress", function(e) {
                 if (e.key === "Enter") addPlayer();
