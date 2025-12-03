@@ -176,10 +176,21 @@
             }
         }
 
-        function sortPlayers() {
-            players.sort((a, b) => b.amount - a.amount);
-            saveData();
-            renderTable();
+       function sortPlayers() {
+    players.sort((a, b) => b.amount - a.amount);
+    saveData();
+    renderTable();
+}
+
+// מיון אוטומטי כשעוזבים את האפליקציה (יוצאים/סוגרים)
+window.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+        players.sort((a, b) => b.amount - a.amount);
+        saveData();
+        renderTable();
+    }
+});
+
         }
 
         function resetMoneyOnly() {
