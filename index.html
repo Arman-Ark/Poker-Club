@@ -1,0 +1,209 @@
+
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poker Club - מחשבון כניסות</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: Arial, sans-serif;
+            max-width: 600px; margin: 0 auto; padding: 10px; 
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            direction: rtl; min-height: 100vh;
+        }
+        .header { text-align: center; margin-bottom: 20px; }
+        .logo { font-size: 2.5em; margin-bottom: 8px; }
+        .logo .spade { color: #000; }
+        .logo .heart { color: #dc143c; }
+        .logo .diamond { color: #dc143c; }
+        .logo .club { color: #000; }
+        .header h1 { margin: 0 0 5px 0; font-size: 1.8em; color: #f4d03f; }
+        .header p { margin: 0; color: rgba(255,255,255,0.9); font-size: 1em; }
+        .input-group { display: flex; gap: 8px; margin-bottom: 15px; background: rgba(255,255,255,0.1); padding: 12px; border-radius: 12px; }
+        input[type="text"] { flex: 1; padding: 10px; border: 2px solid #f4d03f; border-radius: 8px; font-size: 15px; background: white; }
+        button { padding: 8px 12px; border: none; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .btn-primary { background: #4CAF50; color: white; }
+        .btn-secondary { background: #2196F3; color: white; min-width: 60px; }
+        .btn-danger { background: #f44336; color: white; min-width: 40px; }
+        .btn-small { background: #757575; color: white; min-width: 30px; padding: 6px 8px; font-size: 12px; }
+        .btn-sort { background: #FF9800; color: white; width: 100%; margin-bottom: 8px; padding: 10px; font-size: 13px; }
+        .btn-reset-money { background: #FF5722; color: white; width: 100%; margin-bottom: 8px; padding: 10px; font-size: 13px; }
+        .full-reset-btn { background: #f44336; color: white; width: 100%; padding: 10px; margin-top: 8px; font-size: 13px; }
+        .table-container { max-height: 280px; overflow-y: auto; background: white; border-radius: 12px; margin-bottom: 12px; }
+        .table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        th, td { padding: 5px 4px; text-align: center; border-bottom: 1px solid #eee; font-size: 12px; line-height: 1.2; }
+        th { background: #f8f9fa; font-weight: bold; position: sticky; top: 0; font-size: 11px; padding: 6px 4px; }
+        th:nth-child(1), td:nth-child(1) { width: 40%; }
+        th:nth-child(2), td:nth-child(2) { width: 20%; }
+        th:nth-child(3), td:nth-child(3) { width: 40%; }
+        tr:hover { background: #f5f5f5; }
+        .controls { display: flex; justify-content: center; align-items: center; gap: 4px; }
+        .stats { background: white; padding: 15px; border-radius: 12px; text-align: center; }
+        .total-amount { font-size: 18px; font-weight: bold; color: #2196F3; margin: 8px 0; }
+        @media (max-height: 600px) {
+            .table-container { max-height: 250px; }
+        }
+        @media (max-width: 480px) {
+            body { padding: 8px; }
+            .input-group { flex-direction: column; gap: 6px; padding: 10px; }
+            button { font-size: 12px; }
+            th, td { padding: 4px 3px; font-size: 11px; }
+            .table-container { max-height: 240px; }
+            .logo { font-size: 2em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <span class="spade">♠️</span><span class="heart">♥️</span><span class="diamond">♦️</span><span class="club">♣️</span>
+        </div>
+        <h1>Poker Club</h1>
+        <p>מחשבון כניסות לפוקר - לחץ +100₪ בכל ביי-אין</p>
+    </div>
+
+    <div class="input-group">
+        <input type="text" id="playerName" placeholder="שם שחקן חדש...">
+        <button class="btn-primary" onclick="addPlayer()">הוסף</button>
+    </div>
+
+    <button class="btn-sort" onclick="sortPlayers()">מי הכי מושקע הערב?</button>
+    <button class="btn-reset-money" onclick="resetMoneyOnly()">אפס כניסות</button>
+
+    <div class="table-container">
+        <table class="table" id="playersTable">
+            <thead>
+                <tr>
+                    <th>שחקן</th>
+                    <th>כניסות ₪</th>
+                    <th>פעולות</th>
+                </tr>
+            </thead>
+            <tbody id="playerList"></tbody>
+        </table>
+    </div>
+
+    <div class="stats" id="statsDiv">
+        <div>סה"כ שחקנים: <span id="totalPlayers">0</span></div>
+        <div class="total-amount">סך הכל קופה: <span id="totalAmount">0</span> ₪</div>
+        <button class="full-reset-btn" onclick="fullReset()">מחק הכל</button>
+    </div>
+
+    <script>
+        let players = [];
+
+        function initPlayers() {
+            const defaultPlayers = [
+                "ארמן", "אלכס", "רונן", "טוראל", "ישראל", 
+                "שגיא", "ניסים", "איציק", "מיטב", "אלעד", 
+                "רון", "דור", "אוראל"
+            ];
+            players = defaultPlayers.map(name => ({name: name, amount: 0}));
+            saveData();
+        }
+
+        function saveData() {
+            localStorage.setItem("pokerClubPlayers", JSON.stringify(players));
+        }
+
+        function loadData() {
+            try {
+                const saved = localStorage.getItem("pokerClubPlayers");
+                if (saved) {
+                    players = JSON.parse(saved);
+                } else {
+                    initPlayers();
+                }
+            } catch(e) {
+                initPlayers();
+            }
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById("playerList");
+            tbody.innerHTML = "";
+            players.forEach((player, index) => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${player.name}</td>
+                    <td>${player.amount.toLocaleString()}</td>
+                    <td>
+                        <div class="controls">
+                            <button class="btn-secondary" onclick="addMoney(${index})">+100</button>
+                            <button class="btn-danger" onclick="removeMoney(${index})">-</button>
+                            <button class="btn-small" onclick="confirmRemove(${index})">×</button>
+                        </div>
+                    </td>
+                `;
+            });
+            document.getElementById("totalPlayers").textContent = players.length;
+            document.getElementById("totalAmount").textContent = 
+                players.reduce((sum, p) => sum + p.amount, 0).toLocaleString();
+        }
+
+        function addPlayer() {
+            const input = document.getElementById("playerName");
+            const name = input.value.trim();
+            if (name) {
+                players.push({name: name, amount: 0});
+                input.value = "";
+                saveData();
+                renderTable();
+            }
+        }
+
+        function addMoney(index) {
+            players[index].amount += 100;
+            saveData();
+            renderTable();
+        }
+
+        function removeMoney(index) {
+            if (players[index].amount >= 100) {
+                players[index].amount -= 100;
+                saveData();
+                renderTable();
+            }
+        }
+
+        function confirmRemove(index) {
+            if (confirm('למחוק שחקן "' + players[index].name + '"?')) {
+                players.splice(index, 1);
+                saveData();
+                renderTable();
+            }
+        }
+
+        function sortPlayers() {
+            players.sort((a, b) => b.amount - a.amount);
+            saveData();
+            renderTable();
+        }
+
+        function resetMoneyOnly() {
+            if (confirm('אפס כל הכספים?')) {
+                players.forEach(p => p.amount = 0);
+                saveData();
+                renderTable();
+            }
+        }
+
+        function fullReset() {
+            if (confirm('מחק הכל?')) {
+                initPlayers();
+                renderTable();
+            }
+        }
+
+        window.onload = function() {
+            loadData();
+            renderTable(); // מציג את הרשימה מיד בלי ללחוץ כלום
+            document.getElementById("playerName").addEventListener("keypress", function(e) {
+                if (e.key === "Enter") addPlayer();
+            });
+        };
+    </script>
+</body>
+</html>
