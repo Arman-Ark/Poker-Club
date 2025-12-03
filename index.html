@@ -207,5 +207,17 @@
             });
         };
     </script>
+
+    <!-- רישום Service Worker -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('./service-worker.js')
+            .catch(function(err) {
+              console.error('Service worker registration failed:', err);
+            });
+        });
+      }
+    </script>
 </body>
 </html>
