@@ -328,7 +328,7 @@
     </div>
 
     <div class="credit-text">
-        תשחקו, תתרגשו, תהנו והעיקר תרוויחו :)  ☆ Arman-Ark ☆
+        ☆ Arman-Ark ☆
     </div>
 
     <!-- פופ אפ להסרת שחקנים -->
@@ -467,7 +467,7 @@
         }
 
         function resetMoneyOnly() {
-            if (confirm('האם לאפס את כל הכספים ולהחזיר את כל השחקנים ללא פעילים?')) {
+            if (confirm('פעולה זאת תאפס את כלל הטבלה, אתה בטוח?')) {
                 players.forEach(p => {
                     p.amount = 0;
                     p.active = false;
@@ -478,7 +478,7 @@
         }
 
         function fullReset() {
-            if (confirm('אתה בטוח שאתה רוצה למחוק את כל הטבלה?')) {
+            if (confirm('פעולה זאת תמחק את כלל הנתונים בטבלה כולל את רשימת השחקנים, האם אתה בטוח?')) {
                 initPlayers();
                 renderTable();
             }
