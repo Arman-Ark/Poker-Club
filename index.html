@@ -467,8 +467,11 @@
         }
 
         function resetMoneyOnly() {
-            if (confirm('האם לאפס את כל הכספים?')) {
-                players.forEach(p => p.amount = 0);
+            if (confirm('האם לאפס את כל הכספים ולהחזיר את כל השחקנים ללא פעילים?')) {
+                players.forEach(p => {
+                    p.amount = 0;
+                    p.active = false;
+                });
                 saveData();
                 renderTable();
             }
