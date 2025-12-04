@@ -142,14 +142,20 @@
         }
 
         .table-container { 
-            max-height: 280px; 
-            overflow-y: auto; 
+            max-height: none; 
             background: linear-gradient(145deg, #f9fafb, #e5e7eb); 
             border-radius: 16px; 
             margin-bottom: 12px; 
             box-shadow: 0 10px 20px rgba(0,0,0,0.45);
             border: 1px solid rgba(255,255,255,0.7);
         }
+
+        .table-body-wrapper {
+            max-height: 240px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
         .table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         th, td { 
             padding: 6px 4px; 
@@ -178,10 +184,9 @@
             gap: 4px; 
         }
         .controls button {
-            padding: 2px 8px;
+            padding: 4px 8px;
             border-radius: 8px;
             box-shadow: 0 3px 0 rgba(0,0,0,0.35), 0 4px 8px rgba(0,0,0,0.35);
-            font-size: 11px;
         }
 
         /* צ'יפים לשמות */
@@ -311,8 +316,12 @@
                     <th>פעולות</th>
                 </tr>
             </thead>
-            <tbody id="playerList"></tbody>
         </table>
+        <div class="table-body-wrapper">
+            <table class="table">
+                <tbody id="playerList"></tbody>
+            </table>
+        </div>
     </div>
 
     <div class="stats" id="statsDiv">
