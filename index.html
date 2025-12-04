@@ -11,41 +11,128 @@
         body { 
             font-family: Arial, sans-serif;
             max-width: 600px; margin: 0 auto; padding: 10px; 
-            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            background: radial-gradient(circle at top, #1f3b4d 0%, #0f2027 40%, #07141b 100%);
             direction: rtl; min-height: 100vh;
             color: #000000;
         }
+
         .header { text-align: center; margin-bottom: 12px; }
-        .logo { font-size: 2.5em; margin-bottom: 4px; }
+        .logo { 
+            font-size: 2.5em; 
+            margin-bottom: 4px; 
+            text-shadow: 0 3px 6px rgba(0,0,0,0.6);
+        }
         .logo .spade { color: #000; }
-        .logo .heart { color: #dc143c; }
-        .logo .diamond { color: #dc143c; }
+        .logo .heart { color: #ff4b5c; }
+        .logo .diamond { color: #ff4b5c; }
         .logo .club { color: #000; }
-        .header h1 { margin: 0 0 3px 0; font-size: 1.8em; color: #f4d03f; }
-        .header p { margin: 0; color: rgba(255,255,255,0.9); font-size: 1em; }
-        .input-group { display: flex; gap: 8px; margin-bottom: 15px; background: rgba(255,255,255,0.1); padding: 12px; border-radius: 12px; }
-        input[type="text"] { flex: 1; padding: 10px; border: 2px solid #f4d03f; border-radius: 8px; font-size: 15px; background: white; }
-        button { padding: 8px 12px; border: none; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
-        .btn-primary { background: #4CAF50; color: white; }
-        .btn-secondary { background: #2196F3; color: white; min-width: 60px; }
-        .btn-danger { background: #f44336; color: white; min-width: 40px; }
-        .btn-small { background: #757575; color: white; min-width: 30px; padding: 6px 8px; font-size: 12px; }
+        .header h1 { 
+            margin: 0 0 3px 0; 
+            font-size: 1.9em; 
+            color: #f4d03f; 
+            text-shadow: 0 3px 6px rgba(0,0,0,0.7);
+            letter-spacing: 0.5px;
+        }
+        .header p { 
+            margin: 0; 
+            color: rgba(255,255,255,0.9); 
+            font-size: 1em;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+        }
+
+        .input-group { 
+            display: flex; 
+            gap: 8px; 
+            margin-bottom: 15px; 
+            background: rgba(0,0,0,0.25); 
+            padding: 12px; 
+            border-radius: 16px; 
+            box-shadow: inset 0 1px 3px rgba(255,255,255,0.08), 0 8px 18px rgba(0,0,0,0.5);
+        }
+        input[type="text"] { 
+            flex: 1; 
+            padding: 10px; 
+            border: 2px solid #f4d03f; 
+            border-radius: 10px; 
+            font-size: 15px; 
+            background: #fdfdfd; 
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.15);
+        }
+
+        button { 
+            padding: 8px 12px; 
+            border: none; 
+            border-radius: 10px; 
+            font-size: 12px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            box-shadow: 0 4px 0 rgba(0,0,0,0.35), 0 8px 14px rgba(0,0,0,0.45);
+            transform: translateY(0);
+            transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.15s ease;
+        }
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.4), 0 3px 6px rgba(0,0,0,0.6);
+            filter: brightness(0.95);
+        }
+
+        .btn-primary { 
+            background: linear-gradient(180deg, #4cd964 0%, #2e7d32 100%); 
+            color: white; 
+        }
+        .btn-secondary { 
+            background: linear-gradient(180deg, #42a5f5 0%, #1565c0 100%); 
+            color: white; 
+            min-width: 60px; 
+        }
+        .btn-danger { 
+            background: linear-gradient(180deg, #ff5252 0%, #c62828 100%); 
+            color: white; 
+            min-width: 40px; 
+        }
+        .btn-small { 
+            background: linear-gradient(180deg, #757575 0%, #424242 100%); 
+            color: white; 
+            min-width: 30px; 
+            padding: 6px 8px; 
+            font-size: 12px; 
+        }
         .btn-active-toggle {
-            background: #4caf50;
+            background: linear-gradient(180deg, #4caf50 0%, #2e7d32 100%);
             color: white;
             min-width: 30px;
             padding: 6px 8px;
             font-size: 12px;
             opacity: 0.3;
-            transition: opacity 0.2s, box-shadow 0.2s;
+            transition: opacity 0.2s, box-shadow 0.2s, transform 0.1s ease;
         }
         .btn-active-toggle.active {
             opacity: 1;
-            box-shadow: 0 0 6px rgba(76, 175, 80, 0.9);
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.9);
         }
-        .btn-sort { background: #FF9800; color: white; width: 100%; margin-bottom: 8px; padding: 10px; font-size: 13px; }
-        .btn-reset-money { background: #FF5722; color: white; width: 100%; margin-bottom: 8px; padding: 10px; font-size: 13px; }
-        .full-reset-btn { background: #f44336; color: white; padding: 8px 14px; font-size: 13px; }
+
+        .btn-sort { 
+            background: linear-gradient(180deg, #ffb74d 0%, #f57c00 100%); 
+            color: white; 
+            width: 100%; 
+            margin-bottom: 8px; 
+            padding: 10px; 
+            font-size: 13px; 
+        }
+        .btn-reset-money { 
+            background: linear-gradient(180deg, #ff7043 0%, #e64a19 100%); 
+            color: white; 
+            width: 100%; 
+            margin-bottom: 8px; 
+            padding: 10px; 
+            font-size: 13px; 
+        }
+        .full-reset-btn { 
+            background: linear-gradient(180deg, #ff5252 0%, #c62828 100%); 
+            color: white; 
+            padding: 8px 14px; 
+            font-size: 13px; 
+        }
         .bottom-btn-row {
             display: flex;
             justify-content: center;
@@ -53,23 +140,54 @@
             gap: 8px;
             margin-top: 6px;
         }
+
         .table-container { 
             max-height: 280px; 
             overflow-y: auto; 
-            background: #f3f4f6; 
-            border-radius: 12px; 
+            background: linear-gradient(145deg, #f9fafb, #e5e7eb); 
+            border-radius: 16px; 
             margin-bottom: 12px; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.45);
+            border: 1px solid rgba(255,255,255,0.7);
         }
         .table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        th, td { padding: 5px 4px; text-align: center; border-bottom: 1px solid #e0e0e0; font-size: 12px; line-height: 1.2; }
-        th { background: #e5e7eb; font-weight: bold; position: sticky; top: 0; font-size: 11px; padding: 6px 4px; }
+        th, td { 
+            padding: 5px 4px; 
+            text-align: center; 
+            border-bottom: 1px solid #d0d3dc; 
+            font-size: 12px; 
+            line-height: 1.2; 
+        }
+        th { 
+            background: linear-gradient(180deg, #e5e7eb 0%, #d1d5db 100%); 
+            font-weight: bold; 
+            position: sticky; 
+            top: 0; 
+            font-size: 11px; 
+            padding: 6px 4px; 
+            box-shadow: 0 2px 3px rgba(0,0,0,0.08);
+        }
         th:nth-child(1), td:nth-child(1) { width: 40%; }
         th:nth-child(2), td:nth-child(2) { width: 20%; }
         th:nth-child(3), td:nth-child(3) { width: 40%; }
-        tr:hover { background: #e9edf3; }
+        tr:hover { background: #eef2ff; }
         .controls { display: flex; justify-content: center; align-items: center; gap: 4px; }
-        .stats { background: #f3f4f6; padding: 15px; border-radius: 12px; text-align: center; }
-        .total-amount { font-size: 18px; font-weight: bold; color: #2196F3; margin: 8px 0; }
+
+        .stats { 
+            background: linear-gradient(145deg, #f9fafb, #e5e7eb); 
+            padding: 15px; 
+            border-radius: 16px; 
+            text-align: center; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.45);
+            border: 1px solid rgba(255,255,255,0.7);
+        }
+        .total-amount { 
+            font-size: 18px; 
+            font-weight: bold; 
+            color: #2196F3; 
+            margin: 8px 0; 
+            text-shadow: 0 1px 3px rgba(255,255,255,0.8);
+        }
         .side-pot { font-size: 13px; color: #f44336; margin: 4px 0 0 0; }
         .credit-text {
             margin-top: 8px;
@@ -77,6 +195,7 @@
             color: rgba(255,255,255,0.7);
             text-align: center;
         }
+
         /* פופאפ ברוכים הבאים */
         #welcomeOverlay {
             display:none;
@@ -91,9 +210,9 @@
             background:#ffffff;
             max-width:420px;
             width:90%;
-            border-radius:12px;
+            border-radius:16px;
             padding:14px;
-            box-shadow:0 4px 12px rgba(0,0,0,0.4);
+            box-shadow:0 12px 24px rgba(0,0,0,0.5);
             text-align:center;
             font-size:13px;
         }
@@ -102,13 +221,8 @@
             font-size:20px;
             font-weight:bold;
         }
-        #welcomeBox p {
-            margin:4px 0;
-        }
-        #welcomeCredit {
-            margin-top:8px;
-            font-weight:bold;
-        }
+        #welcomeBox p { margin:4px 0; }
+        #welcomeCredit { margin-top:8px; font-weight:bold; }
 
         @media (max-height: 600px) {
             .table-container { max-height: 250px; }
@@ -168,9 +282,10 @@
     <div class="stats" id="statsDiv">
         <div>סה"כ שחקנים: <span id="totalPlayers">0</span></div>
         <div>פעילים: <span id="activePlayers">0</span></div>
-        <div class="total-amount">סה"כ קופה: <span id="totalAmount">0</span> ₪</div>
+        <div class="total-amount">סך הכל קופה: <span id="totalAmount">0</span> ₪</div>
         <div id="sidePotRow" class="side-pot" style="display:none;">
-            קופה לא פעילה: <span id="sidePotAmount">0</span> ₪</div>
+            קופה לא פעילה: <span id="sidePotAmount">0</span> ₪
+        </div>
         <div class="bottom-btn-row">
             <button class="full-reset-btn" onclick="openRemovePopup()">הסרת שחקנים</button>
             <button class="full-reset-btn" onclick="fullReset()">מחק הכל</button>
@@ -178,12 +293,12 @@
     </div>
 
     <div class="credit-text">
-        ☆ Arman-Ark ☆ 
+        תשחקו, תתרגשו, תהנו והעיקר תרוויחו :)  ☆ Arman-Ark ☆
     </div>
 
     <!-- פופ אפ להסרת שחקנים -->
     <div id="removePopupOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:999; justify-content:center; align-items:center;">
-        <div style="background:#ffffff; max-width:420px; width:90%; max-height:70vh; border-radius:12px; padding:12px; display:flex; flex-direction:column; box-shadow:0 4px 12px rgba(0,0,0,0.4);">
+        <div style="background:#ffffff; max-width:420px; width:90%; max-height:70vh; border-radius:16px; padding:12px; display:flex; flex-direction:column; box-shadow:0 12px 24px rgba(0,0,0,0.5);">
             <div style="font-weight:bold; margin-bottom:6px; text-align:center;">הסרת שחקנים</div>
             <div style="font-size:12px; margin-bottom:6px; text-align:center; color:#555;">
                 סמן את השחקנים שברצונך להסיר ולחץ על "מחק מסומנים"
@@ -192,8 +307,8 @@
                 <!-- ימולא בדינאמי -->
             </div>
             <div style="display:flex; justify-content:space-between; gap:8px;">
-                <button style="flex:1; background:#f44336; color:white; padding:8px; border:none; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer;" onclick="confirmRemoveSelected()">מחק מסומנים</button>
-                <button style="flex:1; background:#9e9e9e; color:white; padding:8px; border:none; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer;" onclick="closeRemovePopup()">סגור</button>
+                <button style="flex:1; background:linear-gradient(180deg,#ff5252 0%,#c62828 100%); color:white; padding:8px; border:none; border-radius:10px; font-size:12px; font-weight:bold; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,0.35);" onclick="confirmRemoveSelected()">מחק מסומנים</button>
+                <button style="flex:1; background:linear-gradient(180deg,#9e9e9e 0%,#616161 100%); color:white; padding:8px; border:none; border-radius:10px; font-size:12px; font-weight:bold; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,0.35);" onclick="closeRemovePopup()">סגור</button>
             </div>
         </div>
     </div>
