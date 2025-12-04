@@ -173,6 +173,22 @@
         tr:hover { background: #eef2ff; }
         .controls { display: flex; justify-content: center; align-items: center; gap: 4px; }
 
+        /* צ'יפים לשמות */
+        .player-chip {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: radial-gradient(circle at top, #4b5563 0%, #111827 70%);
+            color: #f9fafb;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            font-size: 12px;
+            min-width: 70px;
+        }
+        .player-chip.active {
+            background: radial-gradient(circle at top, #34d399 0%, #059669 70%);
+            box-shadow: 0 0 8px rgba(16,185,129,0.9);
+        }
+
         .stats { 
             background: linear-gradient(145deg, #f9fafb, #e5e7eb); 
             padding: 15px; 
@@ -293,7 +309,7 @@
     </div>
 
     <div class="credit-text">
-        ☆ Arman-Ark ☆
+        תשחקו, תתרגשו, תהנו והעיקר תרוויחו :)  ☆ Arman-Ark ☆
     </div>
 
     <!-- פופ אפ להסרת שחקנים -->
@@ -358,7 +374,7 @@
             players.forEach((player, index) => {
                 const row = tbody.insertRow();
                 row.innerHTML = `
-                    <td>${player.name}</td>
+                    <td><span class="player-chip ${player.active ? 'active' : ''}">${player.name}</span></td>
                     <td>${player.amount.toLocaleString()}</td>
                     <td>
                         <div class="controls">
