@@ -181,6 +181,8 @@
             padding: 6px 10px;
             border-radius: 8px;
             box-shadow: 0 3px 0 rgba(0,0,0,0.35), 0 4px 8px rgba(0,0,0,0.35);
+            position: relative;
+            z-index: 1;
         }
 
         /* צ'יפים לשמות */
@@ -328,7 +330,7 @@
     </div>
 
     <div class="credit-text">
-        תשחקו, תתרגשו, תהנו והעיקר תרוויחו :)  ☆ Arman-Ark ☆
+        ☆ Arman-Ark ☆
     </div>
 
     <!-- פופ אפ להסרת שחקנים -->
@@ -467,10 +469,13 @@
         }
 
         function resetMoneyOnly() {
-            if (confirm('האם לאפס את כל הכספים?')) {
-                players.forEach(p => p.amount = 0);
-                saveData();
-                renderTable();
+            if (confirm('האם לאפס את כל הכספים ואת השחקנים הפעילים?')) {
+            players.forEach(p => {
+            p.amount = 0;
+            p.active = false;
+            });
+            saveData();
+            renderTable();
             }
         }
 
