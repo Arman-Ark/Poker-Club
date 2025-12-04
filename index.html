@@ -167,18 +167,6 @@
             padding: 6px 4px; 
             box-shadow: 0 2px 3px rgba(0,0,0,0.08);
         }
-        .table tr {
-            height: 38px;          /* גובה קבוע לכל השורה */
-        }
-
-        .table td {
-            vertical-align: middle;
-            overflow: hidden;
-        }
-        .actions-cell {
-            position: relative;
-            overflow: hidden;   /* חותך כל חלק מהכפתורים שיוצא מחוץ לתא */
-        }
         th:nth-child(1), td:nth-child(1) { width: 40%; }
         th:nth-child(2), td:nth-child(2) { width: 20%; }
         th:nth-child(3), td:nth-child(3) { width: 40%; }
@@ -190,10 +178,9 @@
             gap: 4px; 
         }
         .controls button {
-            padding: 4px 8px;
-            border-radius: 6px;
-            box-shadow: none;          /* בלי צל בולט בתוך הטבלה */
-            font-size: 11px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            box-shadow: 0 3px 0 rgba(0,0,0,0.35), 0 4px 8px rgba(0,0,0,0.35);
         }
 
         /* צ'יפים לשמות */
@@ -341,7 +328,7 @@
     </div>
 
     <div class="credit-text">
-        ☆ Arman-Ark ☆
+        תשחקו, תתרגשו, תהנו והעיקר תרוויחו :)  ☆ Arman-Ark ☆
     </div>
 
     <!-- פופ אפ להסרת שחקנים -->
@@ -407,7 +394,7 @@
                 row.innerHTML = `
                     <td><span class="player-chip ${player.active ? 'active' : ''}">${player.name}</span></td>
                     <td class="amount-cell ${player.amount > 0 ? 'has-money' : ''}">${player.amount.toLocaleString()}</td>
-                    <td class="actions-cell">
+                    <td>
                         <div class="controls">
                             <button class="btn-secondary" onclick="addMoney(${index})">+100</button>
                             <button class="btn-danger" onclick="removeMoney(${index})">-</button>
@@ -480,13 +467,10 @@
         }
 
         function resetMoneyOnly() {
-            if (confirm('האם לאפס את כל הכספים ואת השחקנים הפעילים?')) {
-            players.forEach(p => {
-            p.amount = 0;
-            p.active = false;
-            });
-            saveData();
-            renderTable();
+            if (confirm('האם לאפס את כל הכספים?')) {
+                players.forEach(p => p.amount = 0);
+                saveData();
+                renderTable();
             }
         }
 
