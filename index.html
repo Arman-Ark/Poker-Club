@@ -152,11 +152,11 @@
         }
         .table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         th, td { 
-            padding: 5px 4px; 
+            padding: 6px 4px; 
             text-align: center; 
             border-bottom: 1px solid #d0d3dc; 
             font-size: 12px; 
-            line-height: 1.2; 
+            line-height: 1.3; 
         }
         th { 
             background: linear-gradient(180deg, #e5e7eb 0%, #d1d5db 100%); 
@@ -171,22 +171,42 @@
         th:nth-child(2), td:nth-child(2) { width: 20%; }
         th:nth-child(3), td:nth-child(3) { width: 40%; }
         tr:hover { background: #eef2ff; }
-        .controls { display: flex; justify-content: center; align-items: center; gap: 4px; }
+        .controls { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 4px; 
+        }
+        .controls button {
+            padding: 6px 10px;
+            border-radius: 8px;
+            box-shadow: 0 3px 0 rgba(0,0,0,0.35), 0 4px 8px rgba(0,0,0,0.35);
+        }
 
         /* צ'יפים לשמות */
         .player-chip {
             display: inline-block;
             padding: 4px 10px;
             border-radius: 999px;
-            background: radial-gradient(circle at top, #4b5563 0%, #111827 70%);
+            background: radial-gradient(circle at top, #6b7280 0%, #111827 70%);
             color: #f9fafb;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
             font-size: 12px;
             min-width: 70px;
         }
         .player-chip.active {
-            background: radial-gradient(circle at top, #34d399 0%, #059669 70%);
-            box-shadow: 0 0 8px rgba(16,185,129,0.9);
+            background: radial-gradient(circle at top, #6ee7b7 0%, #10b981 70%);
+            box-shadow: 0 0 6px rgba(45,212,191,0.7);
+        }
+
+        /* סכומים מודגשים */
+        .amount-cell {
+            font-weight: 600;
+            color: #0f172a;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.7);
+        }
+        .amount-cell.has-money {
+            color: #1d4ed8;
         }
 
         .stats { 
@@ -267,7 +287,6 @@
 
     <div class="header">
         <div class="logo">
-            <!-- סדר חדש משמאל לימין: מעויין, עלה, לב, תלתן -->
             <span class="diamond">♦️</span><span class="spade">♠️</span><span class="heart">♥️</span><span class="club">♣️</span>
         </div>
         <h1>Poker Club</h1>
@@ -309,7 +328,7 @@
     </div>
 
     <div class="credit-text">
-        ☆ Arman-Ark ☆
+        תשחקו, תתרגשו, תהנו והעיקר תרוויחו :)  ☆ Arman-Ark ☆
     </div>
 
     <!-- פופ אפ להסרת שחקנים -->
@@ -320,7 +339,6 @@
                 סמן את השחקנים שברצונך להסיר ולחץ על "מחק מסומנים"
             </div>
             <div id="removeList" style="flex:1; overflow-y:auto; border:1px solid #eee; border-radius:8px; padding:4px 0; margin-bottom:8px;">
-                <!-- ימולא בדינאמי -->
             </div>
             <div style="display:flex; justify-content:space-between; gap:8px;">
                 <button style="flex:1; background:linear-gradient(180deg,#ff5252 0%,#c62828 100%); color:white; padding:8px; border:none; border-radius:10px; font-size:12px; font-weight:bold; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,0.35);" onclick="confirmRemoveSelected()">מחק מסומנים</button>
@@ -375,7 +393,7 @@
                 const row = tbody.insertRow();
                 row.innerHTML = `
                     <td><span class="player-chip ${player.active ? 'active' : ''}">${player.name}</span></td>
-                    <td>${player.amount.toLocaleString()}</td>
+                    <td class="amount-cell ${player.amount > 0 ? 'has-money' : ''}">${player.amount.toLocaleString()}</td>
                     <td>
                         <div class="controls">
                             <button class="btn-secondary" onclick="addMoney(${index})">+100</button>
@@ -463,7 +481,6 @@
             }
         }
 
-        // פופאפ ברוכים הבאים – פעם אחת לכל מכשיר
         function showWelcomeIfNeeded() {
             if (!localStorage.getItem("pokerClubWelcomeShown")) {
                 const overlay = document.getElementById("welcomeOverlay");
@@ -475,7 +492,6 @@
             }
         }
 
-        // פופ אפ הסרת שחקנים
         function openRemovePopup() {
             const overlay = document.getElementById("removePopupOverlay");
             const listDiv = document.getElementById("removeList");
@@ -562,7 +578,6 @@
         };
     </script>
 
-    <!-- רישום Service Worker -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
