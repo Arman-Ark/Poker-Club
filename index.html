@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f2027">
-    <title>Poker Club - מחשבון כניסות</title>
+    <title>Poker Club - ×ž×—×©×‘×•×Ÿ ×›× ×™×¡×•×ª</title>
     <style>
         * { box-sizing: border-box; }
         body { 
@@ -183,7 +183,7 @@
             box-shadow: 0 3px 0 rgba(0,0,0,0.35), 0 4px 8px rgba(0,0,0,0.35);
         }
 
-        /* צ'יפים לשמות */
+        /* ×¦'×™×¤×™× ×œ×©×ž×•×ª */
         .player-chip {
             display: inline-block;
             padding: 4px 10px;
@@ -199,7 +199,7 @@
             box-shadow: 0 0 6px rgba(45,212,191,0.7);
         }
 
-        /* סכומים מודגשים */
+        /* ×¡×›×•×ž×™× ×ž×•×“×’×©×™× */
         .amount-cell {
             font-weight: 600;
             color: #0f172a;
@@ -232,7 +232,7 @@
             text-align: center;
         }
 
-        /* פופאפ ברוכים הבאים */
+        /* ×¤×•×¤××¤ ×‘×¨×•×›×™× ×”×‘××™× */
         #welcomeOverlay {
             display:none;
             position:fixed;
@@ -276,38 +276,38 @@
 <body>
     <div id="welcomeOverlay">
         <div id="welcomeBox">
-            <div id="welcomeTitle">♧◇ Poker Club ♧♡</div>
-            <p>ברוכים הבאים למחשבון הפוקר</p>
-            <p>תהנו, תשמחו, תשחקו, תתרגשו והעיקר תרוויחו יא כבשים יקרים 💰💰💰</p>
-            <p>האפליקציה נבנתה בהשקעה ובאהבה מלאה בשביל הנוחיות שלכם</p>
-            <p id="welcomeCredit">☆ Arman-Ark ☆</p>
-            <p style="margin-top:6px; font-size:12px; color:#555;">הקשה בכל מקום על המסך תסגור חלון זה.</p>
+            <div id="welcomeTitle">â™§â—‡ Poker Club â™§â™¡</div>
+            <p>×‘×¨×•×›×™× ×”×‘××™× ×œ×ž×—×©×‘×•×Ÿ ×”×¤×•×§×¨</p>
+            <p>×ª×”× ×•, ×ª×©×ž×—×•, ×ª×©×—×§×•, ×ª×ª×¨×’×©×• ×•×”×¢×™×§×¨ ×ª×¨×•×•×™×—×• ×™× ×›×‘×©×™× ×™×§×¨×™× ðŸ’°ðŸ’°ðŸ’°</p>
+            <p>×”××¤×œ×™×§×¦×™×” × ×‘× ×ª×” ×‘×”×©×§×¢×” ×•×‘××”×‘×” ×ž×œ××” ×‘×©×‘×™×œ ×”× ×•×—×™×•×ª ×©×œ×›×</p>
+            <p id="welcomeCredit">â˜† Arman-Ark â˜†</p>
+            <p style="margin-top:6px; font-size:12px; color:#555;">×”×§×©×” ×‘×›×œ ×ž×§×•× ×¢×œ ×”×ž×¡×š ×ª×¡×’×•×¨ ×—×œ×•×Ÿ ×–×”.</p>
         </div>
     </div>
 
     <div class="header">
         <div class="logo">
-            <span class="diamond">♦️</span><span class="spade">♠️</span><span class="heart">♥️</span><span class="club">♣️</span>
+            <span class="diamond">â™¦ï¸</span><span class="spade">â™ ï¸</span><span class="heart">â™¥ï¸</span><span class="club">â™£ï¸</span>
         </div>
         <h1>Poker Club</h1>
-        <p>מחשבון כניסות לפוקר - לחץ +100₪ בכל ביי-אין</p>
+        <p>×ž×—×©×‘×•×Ÿ ×›× ×™×¡×•×ª ×œ×¤×•×§×¨ - ×œ×—×¥ +100â‚ª ×‘×›×œ ×‘×™×™-××™×Ÿ</p>
     </div>
 
     <div class="input-group">
-        <input type="text" id="playerName" placeholder="שם שחקן חדש...">
-        <button class="btn-primary" onclick="addPlayer()">הוסף</button>
+        <input type="text" id="playerName" placeholder="×©× ×©×—×§×Ÿ ×—×“×©...">
+        <button class="btn-primary" onclick="addPlayer()">×”×•×¡×£</button>
     </div>
 
-    <button class="btn-sort" onclick="sortPlayers()">מי הכי מושקע הערב?</button>
-    <button class="btn-reset-money" onclick="resetMoneyOnly()">איפוס כניסות</button>
+    <button class="btn-sort" onclick="sortPlayers()">×ž×™ ×”×›×™ ×ž×•×©×§×¢ ×”×¢×¨×‘?</button>
+    <button class="btn-reset-money" onclick="resetMoneyOnly()">××™×¤×•×¡ ×›× ×™×¡×•×ª</button>
 
     <div class="table-container">
         <table class="table" id="playersTable">
             <thead>
                 <tr>
-                    <th>שחקן</th>
-                    <th>כניסות ₪</th>
-                    <th>פעולות</th>
+                    <th>×©×—×§×Ÿ</th>
+                    <th>×›× ×™×¡×•×ª â‚ª</th>
+                    <th>×¤×¢×•×œ×•×ª</th>
                 </tr>
             </thead>
             <tbody id="playerList"></tbody>
@@ -315,34 +315,34 @@
     </div>
 
     <div class="stats" id="statsDiv">
-        <div>סה"כ שחקנים: <span id="totalPlayers">0</span></div>
-        <div>פעילים: <span id="activePlayers">0</span></div>
-        <div class="total-amount">סך הכל קופה: <span id="totalAmount">0</span> ₪</div>
+        <div>×¡×”"×› ×©×—×§× ×™×: <span id="totalPlayers">0</span></div>
+        <div>×¤×¢×™×œ×™×: <span id="activePlayers">0</span></div>
+        <div class="total-amount">×¡×š ×”×›×œ ×§×•×¤×”: <span id="totalAmount">0</span> â‚ª</div>
         <div id="sidePotRow" class="side-pot" style="display:none;">
-            קופה לא פעילה: <span id="sidePotAmount">0</span> ₪
+            ×§×•×¤×” ×œ× ×¤×¢×™×œ×”: <span id="sidePotAmount">0</span> â‚ª
         </div>
         <div class="bottom-btn-row">
-            <button class="full-reset-btn" onclick="openRemovePopup()">הסרת שחקנים</button>
-            <button class="full-reset-btn" onclick="fullReset()">מחק הכל</button>
+            <button class="full-reset-btn" onclick="openRemovePopup()">×”×¡×¨×ª ×©×—×§× ×™×</button>
+            <button class="full-reset-btn" onclick="fullReset()">×ž×—×§ ×”×›×œ</button>
         </div>
     </div>
 
     <div class="credit-text">
-        תשחקו, תתרגשו, תהנו והעיקר תרוויחו :)  ☆ Arman-Ark ☆
+        ×ª×©×—×§×•, ×ª×ª×¨×’×©×•, ×ª×”× ×• ×•×”×¢×™×§×¨ ×ª×¨×•×•×™×—×• :)  â˜† Arman-Ark â˜†
     </div>
 
-    <!-- פופ אפ להסרת שחקנים -->
+    <!-- ×¤×•×¤ ××¤ ×œ×”×¡×¨×ª ×©×—×§× ×™× -->
     <div id="removePopupOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:999; justify-content:center; align-items:center;">
         <div style="background:#ffffff; max-width:420px; width:90%; max-height:70vh; border-radius:16px; padding:12px; display:flex; flex-direction:column; box-shadow:0 12px 24px rgba(0,0,0,0.5);">
-            <div style="font-weight:bold; margin-bottom:6px; text-align:center;">הסרת שחקנים</div>
+            <div style="font-weight:bold; margin-bottom:6px; text-align:center;">×”×¡×¨×ª ×©×—×§× ×™×</div>
             <div style="font-size:12px; margin-bottom:6px; text-align:center; color:#555;">
-                סמן את השחקנים שברצונך להסיר ולחץ על "מחק מסומנים"
+                ×¡×ž×Ÿ ××ª ×”×©×—×§× ×™× ×©×‘×¨×¦×•× ×š ×œ×”×¡×™×¨ ×•×œ×—×¥ ×¢×œ "×ž×—×§ ×ž×¡×•×ž× ×™×"
             </div>
             <div id="removeList" style="flex:1; overflow-y:auto; border:1px solid #eee; border-radius:8px; padding:4px 0; margin-bottom:8px;">
             </div>
             <div style="display:flex; justify-content:space-between; gap:8px;">
-                <button style="flex:1; background:linear-gradient(180deg,#ff5252 0%,#c62828 100%); color:white; padding:8px; border:none; border-radius:10px; font-size:12px; font-weight:bold; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,0.35);" onclick="confirmRemoveSelected()">מחק מסומנים</button>
-                <button style="flex:1; background:linear-gradient(180deg,#9e9e9e 0%,#616161 100%); color:white; padding:8px; border:none; border-radius:10px; font-size:12px; font-weight:bold; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,0.35);" onclick="closeRemovePopup()">סגור</button>
+                <button style="flex:1; background:linear-gradient(180deg,#ff5252 0%,#c62828 100%); color:white; padding:8px; border:none; border-radius:10px; font-size:12px; font-weight:bold; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,0.35);" onclick="confirmRemoveSelected()">×ž×—×§ ×ž×¡×•×ž× ×™×</button>
+                <button style="flex:1; background:linear-gradient(180deg,#9e9e9e 0%,#616161 100%); color:white; padding:8px; border:none; border-radius:10px; font-size:12px; font-weight:bold; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,0.35);" onclick="closeRemovePopup()">×¡×’×•×¨</button>
             </div>
         </div>
     </div>
@@ -352,9 +352,9 @@
 
         function initPlayers() {
             const defaultPlayers = [
-                "ארמן", "אלכס", "רונן", "טוראל", "ישראל", 
-                "שגיא", "ניסים", "איציק", "מיטב", "אלעד", 
-                "רון", "דור", "אוראל"
+                "××¨×ž×Ÿ", "××œ×›×¡", "×¨×•× ×Ÿ", "×˜×•×¨××œ", "×™×©×¨××œ", 
+                "×©×’×™×", "× ×™×¡×™×", "××™×¦×™×§", "×ž×™×˜×‘", "××œ×¢×“", 
+                "×¨×•×Ÿ", "×“×•×¨", "××•×¨××œ"
             ];
             players = defaultPlayers.map(name => ({
                 name: name,
@@ -398,7 +398,7 @@
                         <div class="controls">
                             <button class="btn-secondary" onclick="addMoney(${index})">+100</button>
                             <button class="btn-danger" onclick="removeMoney(${index})">-</button>
-                            <button class="btn-active-toggle ${player.active ? 'active' : ''}" onclick="toggleActive(${index})">✔</button>
+                            <button class="btn-active-toggle ${player.active ? 'active' : ''}" onclick="toggleActive(${index})">âœ”</button>
                         </div>
                     </td>
                 `;
@@ -467,7 +467,7 @@
         }
 
         function resetMoneyOnly() {
-            if (confirm('האם לאפס את כל הכספים?')) {
+            if (confirm('×”×× ×œ××¤×¡ ××ª ×›×œ ×”×›×¡×¤×™×?')) {
                 players.forEach(p => p.amount = 0);
                 saveData();
                 renderTable();
@@ -475,7 +475,7 @@
         }
 
         function fullReset() {
-            if (confirm('אתה בטוח שאתה רוצה למחוק את כל הטבלה?')) {
+            if (confirm('××ª×” ×‘×˜×•×— ×©××ª×” ×¨×•×¦×” ×œ×ž×—×•×§ ××ª ×›×œ ×”×˜×‘×œ×”?')) {
                 initPlayers();
                 renderTable();
             }
@@ -515,7 +515,7 @@
                 right.style.gap = "8px";
 
                 const amountSpan = document.createElement("span");
-                amountSpan.textContent = p.amount.toLocaleString() + " ₪";
+                amountSpan.textContent = p.amount.toLocaleString() + " â‚ª";
                 amountSpan.style.color = "#555";
 
                 const checkbox = document.createElement("input");
@@ -544,11 +544,11 @@
             const checkboxes = overlay.querySelectorAll("input[type='checkbox']:checked");
 
             if (checkboxes.length === 0) {
-                alert("לא נבחרו שחקנים להסרה.");
+                alert("×œ× × ×‘×—×¨×• ×©×—×§× ×™× ×œ×”×¡×¨×”.");
                 return;
             }
 
-            if (!confirm("אתה בטוח שאתה רוצה להסיר את השחקן/נים המסומנים?")) {
+            if (!confirm("××ª×” ×‘×˜×•×— ×©××ª×” ×¨×•×¦×” ×œ×”×¡×™×¨ ××ª ×”×©×—×§×Ÿ/× ×™× ×”×ž×¡×•×ž× ×™×?")) {
                 return;
             }
 
