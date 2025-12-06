@@ -312,6 +312,27 @@
             <p style="margin-top:6px; font-size:12px; color:#555;">הקשה בכל מקום על המסך תסגור חלון זה.</p>
         </div>
     </div>
+    <!-- פופאפ בחירת שם משתמש אישי -->
+    <div id="userNameOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1001; justify-content:center; align-items:center;">
+        <div style="background:#ffffff; max-width:420px; width:90%; border-radius:16px; padding:14px; box-shadow:0 12px 24px rgba(0,0,0,0.5); font-size:13px;">
+            <h3 style="margin:0 0 8px 0; text-align:center;">בחירת שם משתמש</h3>
+            <p style="margin:4px 0; text-align:center;">
+                הכנס את שמך כפי שתרצה שיופיע בסטטיסטיקה האישית שלך.
+            </p>
+            <input id="userNameInput" type="text" placeholder="הזן שם משתמש..." 
+                   style="width:100%; padding:8px; margin:8px 0; border:1px solid #ccc; border-radius:8px; font-size:13px;">
+            <p style="margin:4px 0; font-size:12px; color:#555; text-align:center;">
+                לתשומת לבך: הסטטיסטיקה הינה אישית ולא משותפת עם שאר המשתמשים. הנתונים נשמרים רק במכשיר זה ואינם מסונכרנים עם אחרים.
+            </p>
+            <p style="margin:4px 0; font-size:12px; color:#555; text-align:center;">
+                בעת לחיצה על הכפתור "סטטיסטיקה אישית" תוכל לעקוב אחרי נתוני הרווח וההפסד שלך.
+            </p>
+            <div style="display:flex; gap:8px; margin-top:10px;">
+                <button style="flex:1; background:linear-gradient(180deg,#4cd964 0%,#2e7d32 100%); color:white;"
+                        onclick="confirmUserName()">אישור</button>
+            </div>
+        </div>
+    </div>
 
     <div class="header">
         <div class="logo">
@@ -381,9 +402,77 @@
             </div>
         </div>
     </div>
+    <!-- פופאפ סטטיסטיקה אישית -->
+    <div id="personalStatsOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1002; justify-content:center; align-items:center;">
+        <div style="background:#ffffff; max-width:420px; width:90%; border-radius:16px; padding:14px; box-shadow:0 12px 24px rgba(0,0,0,0.5); font-size:13px;">
+            <h3 id="personalStatsTitle" style="margin:0 0 8px 0; text-align:center;">סטטיסטיקה אישית</h3>
+            
+            <div style="margin-bottom:8px; font-size:13px;">
+                <div>סה״כ כניסות מצטברות: <span id="psTotalBuyins">0</span> ₪</div>
+                <div>סה״כ סכומי סיום שהוצהרו: <span id="psTotalCashout">0</span> ₪</div>
+                <div style="margin-top:4px; font-weight:bold;">
+                    רווח / הפסד מצטבר: <span id="psNet">0</span> ₪
+                </div>
+            </div>
+
+            <hr style="margin:8px 0;">
+
+            <div style="margin-bottom:8px;">
+                <div style="margin-bottom:4px;">הוסף סיכום ערב חדש:</div>
+                <input id="psSessionAmount" type="number" placeholder="סכום שסיימת איתו ערב זה (₪)" 
+                       style="width:100%; padding:8px; margin-bottom:6px; border:1px solid #ccc; border-radius:8px; font-size:13px;">
+                <button style="width:100%; background:linear-gradient(180deg,#42a5f5 0%,#1565c0 100%); color:white;"
+                        onclick="addSessionResult()">הוסף לערך המצטבר</button>
+            </div>
+
+            <hr style="margin:8px 0;">
+
+            <div style="display:flex; flex-direction:column; gap:6px;">
+                <button style="width:100%; background:linear-gradient(180deg,#9e9e9e 0%,#616161 100%); color:white;"
+                        onclick="closePersonalStats()">אישור וסגירה</button>
+                <button style="width:100%; background:linear-gradient(180deg,#ff7043 0%,#e64a19 100%); color:white;"
+                        onclick="resetUserStats()">איפוס סטטיסטיקה</button>
+                <button style="width:100%; background:linear-gradient(180deg,#ff5252 0%,#c62828 100%); color:white;"
+                        onclick="changeUser()">החלפת משתמש ומחיקת נתונים</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         let players = [];
+        let currentUserName = null;
+        let currentUserStats = {
+            totalBuyins: 0,
+            totalCashout: 0
+        };
+
+        function loadUserName() {
+            currentUserName = localStorage.getItem("pokerUserName") || null;
+        }
+
+        function saveUserName(name) {
+            currentUserName = name;
+            localStorage.setItem("pokerUserName", name);
+        }
+
+        function loadUserStats() {
+            if (!currentUserName) return;
+            const raw = localStorage.getItem("pokerStats_" + currentUserName);
+            if (raw) {
+                try {
+                    currentUserStats = JSON.parse(raw);
+                } catch(e) {
+                    currentUserStats = { totalBuyins: 0, totalCashout: 0 };
+                }
+            } else {
+                currentUserStats = { totalBuyins: 0, totalCashout: 0 };
+            }
+        }
+
+        function saveUserStats() {
+            if (!currentUserName) return;
+            localStorage.setItem("pokerStats_" + currentUserName, JSON.stringify(currentUserStats));
+        }
 
         function initPlayers() {
             const defaultPlayers = [
@@ -529,6 +618,32 @@
                 }, { once: true });
             }
         }
+        function ensureUserName() {
+            loadUserName();
+            if (!currentUserName) {
+                const overlay = document.getElementById("userNameOverlay");
+                overlay.style.display = "flex";
+                overlay.style.justifyContent = "center";
+                overlay.style.alignItems = "center";
+                document.getElementById("userNameInput").value = "";
+                return;
+            }
+            // אם כבר יש שם, טוענים סטטיסטיקה
+            loadUserStats();
+        }
+
+        function confirmUserName() {
+            const input = document.getElementById("userNameInput");
+            const name = input.value.trim();
+            if (!name) {
+                alert("נא להזין שם משתמש.");
+                return;
+            }
+            saveUserName(name);
+            currentUserStats = { totalBuyins: 0, totalCashout: 0 };
+            saveUserStats();
+            document.getElementById("userNameOverlay").style.display = "none";
+        }
 
         function openRemovePopup() {
             const overlay = document.getElementById("removePopupOverlay");
@@ -604,12 +719,95 @@
             renderTable();
             closeRemovePopup();
         }
+        
+        function openPersonalStats() {
+            loadUserName();
+            if (!currentUserName) {
+                // אם אין עדיין שם – נכפה בחירה קודם
+                ensureUserName();
+                return;
+            }
+            loadUserStats();
+
+            document.getElementById("personalStatsTitle").textContent =
+                "סטטיסטיקה אישית עבור " + currentUserName;
+
+            document.getElementById("psTotalBuyins").textContent =
+                currentUserStats.totalBuyins.toLocaleString();
+
+            document.getElementById("psTotalCashout").textContent =
+                currentUserStats.totalCashout.toLocaleString();
+
+            const net = currentUserStats.totalCashout - currentUserStats.totalBuyins;
+            document.getElementById("psNet").textContent = net.toLocaleString();
+
+            document.getElementById("psSessionAmount").value = "";
+
+            const overlay = document.getElementById("personalStatsOverlay");
+            overlay.style.display = "flex";
+            overlay.style.justifyContent = "center";
+            overlay.style.alignItems = "center";
+        }
+
+        function closePersonalStats() {
+            document.getElementById("personalStatsOverlay").style.display = "none";
+        }
+
+        function addSessionResult() {
+            const input = document.getElementById("psSessionAmount");
+            const val = parseFloat(input.value);
+            if (isNaN(val) || val <= 0) {
+                alert("נא להזין סכום חיובי.");
+                return;
+            }
+
+            // כאן מחליטים איך לחשב כניסות לערב.
+            // כרגע: נניח שכל כניסה היא 100 ₪ ונשתמש בסכום הכניסות הפעיל הנוכחי.
+            const totalTonightBuyins = players.reduce((sum, p) => sum + p.amount, 0);
+
+            currentUserStats.totalBuyins += totalTonightBuyins;
+            currentUserStats.totalCashout += val;
+            saveUserStats();
+
+            openPersonalStats(); // ריענון ערכים בחלון
+        }
+
+        function resetUserStats() {
+            if (!currentUserName) {
+                alert("אין משתמש טעון.");
+                return;
+            }
+            if (!confirm("האם אתה בטוח שאתה רוצה לאפס את הסטטיסטיקה עבור " + currentUserName + "?")) {
+                return;
+            }
+            currentUserStats = { totalBuyins: 0, totalCashout: 0 };
+            saveUserStats();
+            openPersonalStats();
+        }
+
+        function changeUser() {
+            if (!currentUserName) {
+                ensureUserName();
+                return;
+            }
+            if (!confirm("האם אתה בטוח שאתה רוצה למחוק את כל הנתונים ולהחליף משתמש?")) {
+                return;
+            }
+            localStorage.removeItem("pokerStats_" + currentUserName);
+            localStorage.removeItem("pokerUserName");
+            currentUserName = null;
+            currentUserStats = { totalBuyins: 0, totalCashout: 0 };
+            document.getElementById("personalStatsOverlay").style.display = "none";
+            ensureUserName();
+        }
 
         window.onload = function() {
             loadData();
             sortPlayers();
             renderTable();
             showWelcomeIfNeeded();
+            ensureUserName();  // בדיקת/בחירת שם משתמש אישי
+
             document.getElementById("playerName").addEventListener("keypress", function(e) {
                 if (e.key === "Enter") addPlayer();
             });
