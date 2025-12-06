@@ -127,6 +127,17 @@
             padding: 10px; 
             font-size: 13px; 
         }
+        .top-buttons-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .top-buttons-row .btn-sort {
+            flex: 1;
+            width: auto;      /* מבטל את 100% של .btn-sort */
+            margin-bottom: 0; /* שלא יהיה רווח כפול מתחת לשורה */
+        }
         .full-reset-btn { 
             background: linear-gradient(180deg, #ff5252 0%, #c62828 100%); 
             color: white; 
@@ -315,7 +326,10 @@
         <button class="btn-primary" onclick="addPlayer()">הוסף</button>
     </div>
 
-    <button class="btn-sort" onclick="sortPlayers()">מי הכי מושקע הערב?</button>
+    <div class="top-buttons-row">
+        <button class="btn-sort" onclick="sortPlayers()">מי הכי מושקע הערב?</button>
+        <button class="btn-sort personal-stats-btn" onclick="openPersonalStats()">סטטיסטיקה אישית</button>
+    </div>
     <button class="btn-reset-money" onclick="resetMoneyOnly()">איפוס כניסות</button>
 
     <div class="table-container">
