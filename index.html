@@ -150,15 +150,14 @@
             padding: 8px;               /* ריפוד פנימי אחיד */
             overflow: hidden;           /* חותך הכל מחוץ למסגרת */
         }
-        
+
         .table-body-wrapper {
-            height: 100%;               /* תופסת את כל הגובה הפנימי */
-            max-height: 100%;           /* לא מגבילים מתחת לזה */
+            max-height: 320px;          /* מחזירים פשוט מספר, בלי calc */
             overflow-y: auto;
             overflow-x: hidden;
-            border-top: 1px solid rgba(255,255,255,0.3);
-            border-radius: 12px;
-            margin-top: 0;              /* מבטל את הדחיפה למטה */
+            border-top: 1px solid rgba(255,255,255,0.3);  /* קו עדין יותר */
+            border-radius: 12px;         /* רדיוס פנימי */
+            margin-top: 4px;             /* מרווח מהכותרות */
         }
 
         .table { width: 100%; border-collapse: collapse; table-layout: fixed; }
