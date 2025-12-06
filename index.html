@@ -676,16 +676,14 @@
         }
         function openInstallOverlayIfNeeded() {
             if (installFlowHandled) return;
-
+            
             const overlay = document.getElementById("installOverlay");
 
-            // אם יש אירוע התקנה זמין – מציגים את פופאפ ההתקנה שלנו
             if (deferredInstallPrompt) {
                 overlay.style.display = "flex";
                 overlay.style.justifyContent = "center";
                 overlay.style.alignItems = "center";
             } else {
-                // אם אין אפשרות התקנה (למשל דפדפן לא תומך) – מדלגים ישר לזרימה הרגילה
                 installFlowHandled = true;
                 showWelcomeIfNeeded();
             }
@@ -693,21 +691,19 @@
 
         function startInstallFlow() {
             if (!deferredInstallPrompt) {
-                // מקרה קצה – אין אירוע, נמשיך כרגיל
                 skipInstallFlow();
                 return;
             }
 
             installFlowHandled = true;
 
-            deferredInstallPrompt.prompt();  // מציג את חלון ההתקנה של כרום
+            deferredInstallPrompt.prompt();
 
             deferredInstallPrompt.userChoice.then((choiceResult) => {
-                // לא משנה אם המשתמש אישר או ביטל – אחרי שסיימנו סוגרים וממשיכים הלאה
                 deferredInstallPrompt = null;
                 const overlay = document.getElementById("installOverlay");
                 overlay.style.display = "none";
-                showWelcomeIfNeeded(); // ממשיכים ל: ברוכים הבאים -> בחירת שם
+                showWelcomeIfNeeded();
             });
         }
 
@@ -715,7 +711,7 @@
             installFlowHandled = true;
             const overlay = document.getElementById("installOverlay");
             overlay.style.display = "none";
-            showWelcomeIfNeeded(); // מדלגים על התקנה, ממשיכים כרגיל
+            showWelcomeIfNeeded();
         }
 
         function openRemovePopup() {
@@ -882,30 +878,26 @@
             document.getElementById("personalStatsOverlay").style.display = "none";
             ensureUserName();
         }
-                // מאזין לאירוע beforeinstallprompt – שומר אותו לשימוש מאוחר יותר
+                // מאזין ל-beforeinstallprompt
         window.addEventListener('beforeinstallprompt', (e) => {
-            // מונעים את הפופאפ האוטומטי של כרום
             e.preventDefault();
             deferredInstallPrompt = e;
-            // אם עוד לא טיפלנו בזרימה, נפתח את פופאפ ההתקנה שלנו
             if (!installFlowHandled) {
                 openInstallOverlayIfNeeded();
             }
         });
 
-               window.onload = function() {
+        window.onload = function() {
             loadData();
             sortPlayers();
             renderTable();
 
-            // במקום ישר להראות ברוכים הבאים, קודם ננסה להפעיל זרימת התקנה
-            openInstallOverlayIfNeeded();
+            openInstallOverlayIfNeeded();  // יפתח פופאפ התקנה אם אפשר, אחרת ברוכים הבאים
 
             document.getElementById("playerName").addEventListener("keypress", function(e) {
                 if (e.key === "Enter") addPlayer();
             });
 
-            // חיבור כפתור "התקן עכשיו"
             const installBtn = document.getElementById("installNowBtn");
             if (installBtn) {
                 installBtn.addEventListener("click", function() {
