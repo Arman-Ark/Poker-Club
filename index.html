@@ -752,7 +752,6 @@
         function closePersonalStats() {
             document.getElementById("personalStatsOverlay").style.display = "none";
         }
-
         function addSessionResult() {
             const input = document.getElementById("psSessionAmount");
             const val = parseFloat(input.value);
@@ -761,14 +760,24 @@
                 return;
             }
 
-            // כאן מחליטים איך לחשב כניסות לערב.
-            // כרגע: נניח שכל כניסה היא 100 ₪ ונשתמש בסכום הכניסות הפעיל הנוכחי.
-            const totalTonightBuyins = players.reduce((sum, p) => sum + p.amount, 0);
+            if (!currentUserName) {
+                alert("אין משתמש טעון.");
+                return;
+            }
 
-            currentUserStats.totalBuyins += totalTonightBuyins;
+            // מוצאים את השחקן בטבלת השחקנים לפי השם שלו
+            const me = players.find(p => p.name === currentUserName);
+            if (!me) {
+                alert("לא נמצא שחקן בשם " + currentUserName + " ברשימת השחקנים.");
+                return;
+            }
+            
+            const myBuyinsTonight = me.amount;   // כל הכניסות של השחקן הזה בלבד
+
+            currentUserStats.totalBuyins += myBuyinsTonight;
             currentUserStats.totalCashout += val;
             saveUserStats();
-
+            
             openPersonalStats(); // ריענון ערכים בחלון
         }
 
