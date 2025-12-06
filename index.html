@@ -170,16 +170,16 @@
             line-height: 1.3; 
         }
         th { 
-            background: linear-gradient(145deg, #f9fafb, #e5e7eb);  /* בדיוק כמו .table-container */
+            background: transparent;        /* בלי רקע נפרד */
             font-weight: 600; 
             position: sticky; 
             top: 0; 
-            z-index: 10;                /* מעל התוכן */
+            z-index: 10;
             font-size: 11px; 
-            padding: 10px 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.12);       /* צל עדין מאוד, כמעט לא מורגש */
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
+            padding: 8px 4px;              /* טיפה פחות גבוה, שיתמזג עם השורות */
+            box-shadow: none;              /* בלי צל */
+            border-top-left-radius: 0;     /* בלי רדיוס מיוחד */
+            border-top-right-radius: 0;
         }
         th:nth-child(1), td:nth-child(1) { width: 35%; }
         th:nth-child(2), td:nth-child(2) { width: 20%; }
