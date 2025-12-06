@@ -299,28 +299,6 @@
     </style>
 </head>
 <body>
-        <!-- פופאפ המלצה להתקנת האפליקציה (PWA) -->
-    <div id="installOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:999; justify-content:center; align-items:center;">
-        <div style="background:#ffffff; max-width:420px; width:90%; border-radius:16px; padding:14px; box-shadow:0 12px 24px rgba(0,0,0,0.5); font-size:13px; text-align:center;">
-            <h3 style="margin:0 0 8px 0;">התקנת האפליקציה</h3>
-            <p style="margin:4px 0;">
-                כדי ליהנות מהאפליקציה בצורה המלאה, מומלץ להתקין אותה כמסך בית בטלפון שלך.
-            </p>
-            <p style="margin:4px 0; font-size:12px; color:#555;">
-                לאחר ההתקנה תוכל לפתוח את Poker Club כמו כל אפליקציה רגילה, בלי להיכנס לדפדפן.
-            </p>
-            <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
-                <button id="installNowBtn"
-                        style="width:100%; background:linear-gradient(180deg,#42a5f5 0%,#1565c0 100%); color:white; padding:8px; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">
-                    התקן עכשיו
-                </button>
-                <button onclick="skipInstallFlow()"
-                        style="width:100%; background:linear-gradient(180deg,#9e9e9e 0%,#616161 100%); color:white; padding:8px; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">
-                    המשך בלי התקנה
-                </button>
-            </div>
-        </div>
-    </div>
     <div id="welcomeOverlay">
         <div id="welcomeBox">
             <div id="welcomeTitle">♠️♦️ Poker Club ♥️♣️</div>
@@ -467,9 +445,6 @@
             totalBuyins: 0,
             totalCashout: 0
         };
-
-        let deferredInstallPrompt = null;
-        let installFlowHandled = false; // שלא נציג שוב ושוב
 
         function loadUserName() {
             currentUserName = localStorage.getItem("pokerUserName") || null;
@@ -674,45 +649,6 @@
             saveUserStats();
             document.getElementById("userNameOverlay").style.display = "none";
         }
-        function openInstallOverlayIfNeeded() {
-            if (installFlowHandled) return;
-            
-            const overlay = document.getElementById("installOverlay");
-
-            if (deferredInstallPrompt) {
-                overlay.style.display = "flex";
-                overlay.style.justifyContent = "center";
-                overlay.style.alignItems = "center";
-            } else {
-                installFlowHandled = true;
-                showWelcomeIfNeeded();
-            }
-        }
-
-        function startInstallFlow() {
-            if (!deferredInstallPrompt) {
-                skipInstallFlow();
-                return;
-            }
-
-            installFlowHandled = true;
-
-            deferredInstallPrompt.prompt();
-
-            deferredInstallPrompt.userChoice.then((choiceResult) => {
-                deferredInstallPrompt = null;
-                const overlay = document.getElementById("installOverlay");
-                overlay.style.display = "none";
-                showWelcomeIfNeeded();
-            });
-        }
-
-        function skipInstallFlow() {
-            installFlowHandled = true;
-            const overlay = document.getElementById("installOverlay");
-            overlay.style.display = "none";
-            showWelcomeIfNeeded();
-        }
 
         function openRemovePopup() {
             const overlay = document.getElementById("removePopupOverlay");
@@ -878,33 +814,12 @@
             document.getElementById("personalStatsOverlay").style.display = "none";
             ensureUserName();
         }
-                // מאזין ל-beforeinstallprompt
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredInstallPrompt = e;
-            if (!installFlowHandled) {
-                openInstallOverlayIfNeeded();
-            }
-        });
 
         window.onload = function() {
             loadData();
             sortPlayers();
             renderTable();
-
-            openInstallOverlayIfNeeded();  // יפתח פופאפ התקנה אם אפשר, אחרת ברוכים הבאים
-
-            document.getElementById("playerName").addEventListener("keypress", function(e) {
-                if (e.key === "Enter") addPlayer();
-            });
-
-            const installBtn = document.getElementById("installNowBtn");
-            if (installBtn) {
-                installBtn.addEventListener("click", function() {
-                    startInstallFlow();
-                });
-            }
-        };
+            showWelcomeIfNeeded();   // היא כבר תדאג מתי לקרוא ל-ensureUserName
 
             document.getElementById("playerName").addEventListener("keypress", function(e) {
                 if (e.key === "Enter") addPlayer();
