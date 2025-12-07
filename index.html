@@ -843,10 +843,12 @@
             { key: "flop3", label: "בחר את קלף הפלופ השלישי" },
             { key: "turn",  label: "בחר את קלף הטרן" },
             { key: "river", label: "בחר את קלף הריבר" },
-    
-            // 🔥 יריבים - 2 קלפים לכל אחד (מקסימום 4 יריבים לבדיקה)
+
+            // יריב 1
             { key: "opp1_1", label: "יריב 1 - קלף ראשון" },
             { key: "opp1_2", label: "יריב 1 - קלף שני" },
+
+            // יריב 2
             { key: "opp2_1", label: "יריב 2 - קלף ראשון" },
             { key: "opp2_2", label: "יריב 2 - קלף שני" }
         ];
@@ -857,8 +859,13 @@
             flop1: null,
             flop2: null,
             flop3: null,
-            turn: null,
-            river: null
+            turn:  null,
+            river: null,
+            
+            opp1_1: null,
+            opp1_2: null,
+            opp2_1: null,
+            opp2_2: null
         };
 
                 function pcCardId(rank, suitCode) {
@@ -874,12 +881,14 @@
         }
 
         function pcUpdateDisplays() {
+            // היד שלך
             const hero = [];
             if (pcSelection.hero1) hero.push(pcFormatCard(pcSelection.hero1));
             if (pcSelection.hero2) hero.push(pcFormatCard(pcSelection.hero2));
             document.getElementById("pcHeroDisplay").textContent =
                 hero.length ? hero.join(" ") : "—";
 
+            // הלוח
             const board = [];
             if (pcSelection.flop1) board.push(pcFormatCard(pcSelection.flop1));
             if (pcSelection.flop2) board.push(pcFormatCard(pcSelection.flop2));
@@ -889,22 +898,40 @@
             document.getElementById("pcBoardDisplay").textContent =
                 board.length ? board.join(" ") : "—";
 
+            // טקסט מצב בחירה
             const statusEl = document.getElementById("pcStatus");
             if (pcStepIndex < pcSteps.length) {
                 statusEl.textContent = pcSteps[pcStepIndex].label;
             } else {
                 statusEl.textContent = "כל הקלפים נבחרו. אפשר לחשב אחוזים (כשיהיה מוכן).";
             }
-            // 🔥 תצוגת יריבים עם שמות
+
+            // עדכון תצוגת יריבים + שמירת קלפים שלהם
             pcOpponents.forEach(opp => {
                 const cardsEl = document.getElementById(`pcOpp${opp.id}Cards`);
-                const nameEl = document.querySelector(`#pcOpp${opp.id} select`);
-                if (cardsEl) {
-                    const name = opp.name || nameEl?.value || `יריב ${opp.id}`;
-                    cardsEl.textContent = opp.cards.map(pcFormatCard).join(" ") || "— —";
-                    // הוסף שם מתחת לקלפים (אם תרצה)
-                    if (opp.name) cardsEl.title = `שם: ${opp.name}`;
+                if (!cardsEl) return;
+
+                let c1 = null;
+                let c2 = null;
+
+                if (opp.id === 1) {
+                    c1 = pcSelection.opp1_1;
+                    c2 = pcSelection.opp1_2;
+                } else if (opp.id === 2) {
+                    c1 = pcSelection.opp2_1;
+                    c2 = pcSelection.opp2_2;
                 }
+
+                const cards = [];
+                if (c1) cards.push(pcFormatCard(c1));
+                if (c2) cards.push(pcFormatCard(c2));
+
+                cardsEl.textContent = cards.length ? cards.join(" ") : "— —";
+
+                // שמירה במבנה הנתונים עבור החישוב
+                opp.cards = [];
+                if (c1) opp.cards.push(c1);
+                if (c2) opp.cards.push(c2);
             });
         }
 
