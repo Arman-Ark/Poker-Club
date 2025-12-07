@@ -1059,25 +1059,123 @@
         // ⬇️ כאן להוסיף את שלב 4:
 
         function pcCalculateEquity() {
-            if (!pcSelection.hero1 || !pcSelection.hero2) {
-                alert("חסרה היד שלך!");
+            // איסוף נתונים מהמצב הנוכחי
+            const hero_cards = [];
+            if (pcSelection.hero1) hero_cards.push(pcSelection.hero1);
+            if (pcSelection.hero2) hero_cards.push(pcSelection.hero2);
+    
+            const board_cards = [];
+            if (pcSelection.flop1) board_cards.push(pcSelection.flop1);
+            if (pcSelection.flop2) board_cards.push(pcSelection.flop2);
+            if (pcSelection.flop3) board_cards.push(pcSelection.flop3);
+            if (pcSelection.turn) board_cards.push(pcSelection.turn);
+            if (pcSelection.river) board_cards.push(pcSelection.river);
+    
+            const opponents = pcOpponents.map(opp => ({
+                name: opp.name || `יריב ${opp.id}`,
+                cards: []
+            }));
+    
+            // הוספת קלפים ליריבים אם נבחרו (אופציונלי)
+            if (pcSelection.opp1_1) opponents[0].cards.push(pcSelection.opp1_1);
+            if (pcSelection.opp1_2) opponents[0].cards.push(pcSelection.opp1_2);
+            if (pcSelection.opp2_1 && opponents[1]) opponents[1].cards.push(pcSelection.opp2_1);
+            if (pcSelection.opp2_2 && opponents[1]) opponents[1].cards.push(pcSelection.opp2_2);
+    
+            if (hero_cards.length < 2) {
+                alert("בחר לפחות 2 קלפים ליד שלך");
+                return;
+            }
+            if (pcOpponents.length === 0) {
+                alert("הוסף לפחות יריב אחד");
                 return;
             }
     
-            let equityMsg = "חישוב אחוזים:\n\n";
-            equityMsg += `היד שלך: ${pcFormatCard(pcSelection.hero1)} ${pcFormatCard(pcSelection.hero2)}\n`;
-            equityMsg += `לוח: ${document.getElementById("pcBoardDisplay").textContent}\n\n`;
+            // 🔥 Monte Carlo - 5000 סימולציות (מהיר מספיק בדפדפן)
+            const iterations = 5000;
+            let results = { hero: 0, ties: 0 };
+            opponents.forEach((opp, i) => results[opp.name] = 0);
     
-            pcOpponents.forEach(opp => {
-                if (opp.name) {
-                    equityMsg += `${opp.name}: ${opp.cards.map(pcFormatCard).join(" ")} - `;
-                    equityMsg += opp.cards.length === 2 ? "45% (דוגמה)" : "לא הושלם";
-                    equityMsg += "\n";
+            const ranks = '23456789TJQKA';
+            const suits = 'shdc';
+    
+            for (let sim = 0; sim < iterations; sim++) {
+                // חפיסה מלאה
+                let deck = [];
+                for (let r of ranks) for (let s of suits) deck.push(r + s);
+        
+                // הסר קלפים ידועים
+                [...hero_cards, ...board_cards].forEach(card => {
+                    const index = deck.indexOf(card);
+                    if (index > -1) deck.splice(index, 1);
+                });
+                opponents.forEach(opp => opp.cards.forEach(card => {
+                    const index = deck.indexOf(card);
+                    if (index > -1) deck.splice(index, 1);
+                }));
+        
+                // קלפים שרופים לפי שלב לוח
+                const known_board = board_cards.filter(c => c).length;
+                let burn_count = 0;
+                if (known_board === 0) burn_count = 0;      // לפני פלופ
+                else if (known_board === 3) burn_count = 1;  // אחרי פלופ
+                else if (known_board === 4) burn_count = 2;  // אחרי טרן
+                else burn_count = 3;                         // אחרי ריבר
+        
+                // שרוף + השלם לוח
+                for (let i = 0; i < burn_count; i++) {
+                    if (deck.length) deck.shift();
+                }
+                let full_board = [...board_cards.filter(c => c)];
+                const needed_board = 5 - known_board;
+                for (let i = 0; i < needed_board && deck.length; i++) {
+                    full_board.push(deck.shift());
+                }
+        
+                // חלק קלפים ליריבים חסרים
+                let hands = [hero_cards];
+                let names = ["אתה"];
+                opponents.forEach((opp, i) => {
+                    let opp_hand = [...opp.cards];
+                    while (opp_hand.length < 2 && deck.length) {
+                        opp_hand.push(deck.shift());
+                    }
+                    hands.push(opp_hand);
+                    names.push(opp.name);
+                });
+        
+                // הערכת ידיים פשוטה (כרגע לפי קלף גבוה - ניתן לשדרג)
+                let scores = hands.map(hand => {
+                    let all_cards = [...hand, ...full_board];
+                    return Math.max(...all_cards.map(c => ranks.indexOf(c[0]) + 2));
+                });
+                let max_score = Math.max(...scores);
+                let winners = [];
+                for (let i = 0; i < scores.length; i++) {
+                    if (scores[i] === max_score) winners.push(i);
+                }
+        
+                if (winners.length === 1) {
+                    results[names[winners[0]]] += 1;
+                } else {
+                    results.ties += 1;
+                    winners.forEach(w => results[names[w]] += 0.5 / winners.length);
+                }
+            }
+    
+            // תצוגת תוצאות
+            let msg = `📊 תוצאות (${iterations} סימולציות):\n\n`;
+            let total = iterations;
+            Object.keys(results).forEach(name => {
+                if (name !== 'ties') {
+                    let pct = Math.round((results[name] / total) * 100 * 10) / 10;
+                    msg += `${name}: ${pct}%\n`;
                 }
             });
+            msg += `\nתיקו: ${Math.round((results.ties / total) * 100 * 10) / 10}%`;
+            msg += `\n\n💡 קלפים שרופים: ${burn_count} | לוח ידוע: ${known_board}/5`;
     
-            equityMsg += `\n📊 חישוב מלא (עם 3 קלפים שרופים) יגיע בקרוב!`;
-            alert(equityMsg);
+            alert(msg);
         }
 
         // ⬆️ עד כאן
