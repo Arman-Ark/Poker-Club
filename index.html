@@ -442,6 +442,11 @@
                         onclick="pcAddOpponent()">
                     ➕ הוסף יריב
                 </button>
+                <button id="pcSkipStep" 
+                    style="width:100%; margin-top:6px; background:#e5e7eb; color:#111827; padding:6px; border:none; border-radius:8px; font-weight:bold; font-size:12px; cursor:pointer;"
+                    onclick="pcSkipCurrentStep()">
+                    ללא קלף (דלג לשלב הבא)
+                </button>
             </div>
 
             <hr style="margin:8px 0;">
@@ -454,7 +459,8 @@
             <!-- כפתורים תחתונים -->
             <div style="display:flex; flex-direction:column; gap:6px; margin-top:10px;">
                 <button style="width:100%; background:linear-gradient(180deg,#42a5f5 0%,#1565c0 100%); color:white; padding:8px; border:none; border-radius:10px; font-weight:bold; cursor:pointer;"
-                        onclick="pcCalculateEquity()">
+                    onclick="pcCalculateEquity()">
+                    חשב אחוזים
                 </button>
                 <button style="width:100%; background:linear-gradient(180deg,#4cd964 0%,#2e7d32 100%); color:white; padding:8px; border:none; border-radius:10px; font-weight:bold; cursor:pointer;"
                         onclick="closePokerCalculator()">
@@ -870,6 +876,13 @@
 
                 function pcCardId(rank, suitCode) {
             return rank + suitCode; // למשל "As", "10h"
+                    
+       }
+        function pcSkipCurrentStep() {
+            if (pcStepIndex < pcSteps.length) {
+                pcStepIndex++;      // לא נוגעים ב‑pcSelection, פשוט מדלגים
+                pcUpdateDisplays(); // מעדכן את הטקסט למעלה
+            }
         }
 
         function pcFormatCard(card) {
