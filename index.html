@@ -6,6 +6,7 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f2027">
     <title>Poker Club - מחשבון כניסות</title>
+    <script src="https://cdn.jsdelivr.net/npm/pokersolver@2.1.4/dist/pokersolver.min.js"></script>
     <style>
         * { box-sizing: border-box; }
         body { 
@@ -1057,31 +1058,45 @@
         }
 
         // ⬇️ כאן להוסיף את שלב 4:
+        // הערכת יד אמיתית בעזרת pokersolver
+        function pcEvaluateHand(holeCards, boardCards) {
+            // holeCards: ['As','Kd'], boardCards: ['Td','Jh','Qc','2c','3c']
+            const all = [...holeCards, ...boardCards].filter(Boolean);
+            if (all.length < 5 || typeof Hand === "undefined") {
+                // fallback – קלף גבוה, אם משום מה הספרייה לא זמינה
+                const ranks = '23456789TJQKA';
+                return Math.max(...all.map(c => ranks.indexOf(c[0]) + 2));
+            }
+            const solved = Hand.solve(all);
+            // pokersolver: rank נמוך = יד חזקה יותר, אז נהפוך לסקלה "גבוה יותר = טוב יותר"
+            // נשתמש בערך הפוך פשוט:
+            return 100000 - solved.rank;
+        }
 
         function pcCalculateEquity() {
             // איסוף נתונים מהמצב הנוכחי
             const hero_cards = [];
             if (pcSelection.hero1) hero_cards.push(pcSelection.hero1);
             if (pcSelection.hero2) hero_cards.push(pcSelection.hero2);
-    
+
             const board_cards = [];
             if (pcSelection.flop1) board_cards.push(pcSelection.flop1);
             if (pcSelection.flop2) board_cards.push(pcSelection.flop2);
             if (pcSelection.flop3) board_cards.push(pcSelection.flop3);
-            if (pcSelection.turn) board_cards.push(pcSelection.turn);
+            if (pcSelection.turn)  board_cards.push(pcSelection.turn);
             if (pcSelection.river) board_cards.push(pcSelection.river);
-    
+
             const opponents = pcOpponents.map(opp => ({
                 name: opp.name || `יריב ${opp.id}`,
                 cards: []
             }));
-    
+
             // הוספת קלפים ליריבים אם נבחרו (אופציונלי)
-            if (pcSelection.opp1_1) opponents[0].cards.push(pcSelection.opp1_1);
-            if (pcSelection.opp1_2) opponents[0].cards.push(pcSelection.opp1_2);
+            if (pcSelection.opp1_1 && opponents[0]) opponents[0].cards.push(pcSelection.opp1_1);
+            if (pcSelection.opp1_2 && opponents[0]) opponents[0].cards.push(pcSelection.opp1_2);
             if (pcSelection.opp2_1 && opponents[1]) opponents[1].cards.push(pcSelection.opp2_1);
             if (pcSelection.opp2_2 && opponents[1]) opponents[1].cards.push(pcSelection.opp2_2);
-    
+
             if (hero_cards.length < 2) {
                 alert("בחר לפחות 2 קלפים ליד שלך");
                 return;
@@ -1090,94 +1105,97 @@
                 alert("הוסף לפחות יריב אחד");
                 return;
             }
-    
-            // 🔥 Monte Carlo - 5000 סימולציות (מהיר מספיק בדפדפן)
+
+            // 🔥 Monte Carlo - 5000 סימולציות
             const iterations = 5000;
             let results = { hero: 0, ties: 0 };
-            opponents.forEach((opp, i) => results[opp.name] = 0);
-    
+            opponents.forEach(opp => { results[opp.name] = 0; });
+
             const ranks = '23456789TJQKA';
             const suits = 'shdc';
-    
+
+            // מצב לוח + שרופים מחושב פעם אחת
+            const known_board = board_cards.filter(c => c).length;
+            let burn_count = 0;
+            if (known_board === 0)      burn_count = 0; // לפני פלופ
+            else if (known_board === 3) burn_count = 1; // אחרי פלופ
+            else if (known_board === 4) burn_count = 2; // אחרי טרן
+            else                        burn_count = 3; // אחרי ריבר
+
             for (let sim = 0; sim < iterations; sim++) {
                 // חפיסה מלאה
                 let deck = [];
                 for (let r of ranks) for (let s of suits) deck.push(r + s);
-        
-                // הסר קלפים ידועים
+
+                // הסרת קלפים ידועים
                 [...hero_cards, ...board_cards].forEach(card => {
-                    const index = deck.indexOf(card);
-                    if (index > -1) deck.splice(index, 1);
+                    const i = deck.indexOf(card);
+                    if (i > -1) deck.splice(i, 1);
                 });
                 opponents.forEach(opp => opp.cards.forEach(card => {
-                    const index = deck.indexOf(card);
-                    if (index > -1) deck.splice(index, 1);
+                    const i = deck.indexOf(card);
+                    if (i > -1) deck.splice(i, 1);
                 }));
-        
-                // קלפים שרופים לפי שלב לוח
-                const known_board = board_cards.filter(c => c).length;
-                let burn_count = 0;
-                if (known_board === 0) burn_count = 0;      // לפני פלופ
-                else if (known_board === 3) burn_count = 1;  // אחרי פלופ
-                else if (known_board === 4) burn_count = 2;  // אחרי טרן
-                else burn_count = 3;                         // אחרי ריבר
-        
-                // שרוף + השלם לוח
-                for (let i = 0; i < burn_count; i++) {
-                    if (deck.length) deck.shift();
+
+                // שריפת קלפים
+                for (let i = 0; i < burn_count && deck.length; i++) {
+                    deck.shift();
                 }
+
+                // השלמת לוח
                 let full_board = [...board_cards.filter(c => c)];
                 const needed_board = 5 - known_board;
                 for (let i = 0; i < needed_board && deck.length; i++) {
                     full_board.push(deck.shift());
                 }
-        
-                // חלק קלפים ליריבים חסרים
-                let hands = [hero_cards];
+
+                // חלוקת קלפים ליריבים חסרים
+                let hands = [hero_cards.slice()];
                 let names = ["אתה"];
-                opponents.forEach((opp, i) => {
-                    let opp_hand = [...opp.cards];
+                opponents.forEach(opp => {
+                    let opp_hand = opp.cards.slice();
                     while (opp_hand.length < 2 && deck.length) {
                         opp_hand.push(deck.shift());
                     }
                     hands.push(opp_hand);
                     names.push(opp.name);
                 });
-        
-                // הערכת ידיים פשוטה (כרגע לפי קלף גבוה - ניתן לשדרג)
-                let scores = hands.map(hand => {
-                    let all_cards = [...hand, ...full_board];
-                    return Math.max(...all_cards.map(c => ranks.indexOf(c[0]) + 2));
-                });
+
+                // אם למישהו אין יד שלמה – דלג
+                if (hands.some(h => h.length < 2)) continue;
+
+                // דירוג אמיתי עם pokersolver
+                let scores = hands.map(hand => pcEvaluateHand(hand, full_board));
                 let max_score = Math.max(...scores);
                 let winners = [];
                 for (let i = 0; i < scores.length; i++) {
                     if (scores[i] === max_score) winners.push(i);
                 }
-        
+
                 if (winners.length === 1) {
                     results[names[winners[0]]] += 1;
                 } else {
                     results.ties += 1;
-                    winners.forEach(w => results[names[w]] += 0.5 / winners.length);
+                    winners.forEach(w => {
+                        results[names[w]] += 0.5 / winners.length;
+                    });
                 }
             }
-    
+
             // תצוגת תוצאות
             let msg = `📊 תוצאות (${iterations} סימולציות):\n\n`;
-            let total = iterations;
+            const total = iterations;
             Object.keys(results).forEach(name => {
                 if (name !== 'ties') {
-                    let pct = Math.round((results[name] / total) * 100 * 10) / 10;
+                    const pct = Math.round((results[name] / total) * 1000) / 10;
                     msg += `${name}: ${pct}%\n`;
                 }
             });
-            msg += `\nתיקו: ${Math.round((results.ties / total) * 100 * 10) / 10}%`;
+            msg += `\nתיקו: ${Math.round((results.ties / total) * 1000) / 10}%`;
             msg += `\n\n💡 קלפים שרופים: ${burn_count} | לוח ידוע: ${known_board}/5`;
-    
+
             alert(msg);
         }
-
         // ⬆️ עד כאן
 
         function pcRemoveOpponent(id) {
