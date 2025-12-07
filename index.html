@@ -454,8 +454,7 @@
             <!-- כפתורים תחתונים -->
             <div style="display:flex; flex-direction:column; gap:6px; margin-top:10px;">
                 <button style="width:100%; background:linear-gradient(180deg,#42a5f5 0%,#1565c0 100%); color:white; padding:8px; border:none; border-radius:10px; font-weight:bold; cursor:pointer;"
-                        onclick="alert('חישוב אחוזים והוספת יריבים יגיעו בשלב הבא');">
-                    חשב אחוזים (בקרוב)
+                        onclick="pcCalculateEquity()">
                 </button>
                 <button style="width:100%; background:linear-gradient(180deg,#4cd964 0%,#2e7d32 100%); color:white; padding:8px; border:none; border-radius:10px; font-weight:bold; cursor:pointer;"
                         onclick="closePokerCalculator()">
@@ -843,7 +842,13 @@
             { key: "flop2", label: "בחר את קלף הפלופ השני" },
             { key: "flop3", label: "בחר את קלף הפלופ השלישי" },
             { key: "turn",  label: "בחר את קלף הטרן" },
-            { key: "river", label: "בחר את קלף הריבר" }
+            { key: "river", label: "בחר את קלף הריבר" },
+    
+            // 🔥 יריבים - 2 קלפים לכל אחד (מקסימום 4 יריבים לבדיקה)
+            { key: "opp1_1", label: "יריב 1 - קלף ראשון" },
+            { key: "opp1_2", label: "יריב 1 - קלף שני" },
+            { key: "opp2_1", label: "יריב 2 - קלף ראשון" },
+            { key: "opp2_2", label: "יריב 2 - קלף שני" }
         ];
 
         const pcSelection = {
@@ -890,11 +895,15 @@
             } else {
                 statusEl.textContent = "כל הקלפים נבחרו. אפשר לחשב אחוזים (כשיהיה מוכן).";
             }
-            // עדכון תצוגת יריבים
+            // 🔥 תצוגת יריבים עם שמות
             pcOpponents.forEach(opp => {
                 const cardsEl = document.getElementById(`pcOpp${opp.id}Cards`);
+                const nameEl = document.querySelector(`#pcOpp${opp.id} select`);
                 if (cardsEl) {
+                    const name = opp.name || nameEl?.value || `יריב ${opp.id}`;
                     cardsEl.textContent = opp.cards.map(pcFormatCard).join(" ") || "— —";
+                    // הוסף שם מתחת לקלפים (אם תרצה)
+                    if (opp.name) cardsEl.title = `שם: ${opp.name}`;
                 }
             });
         }
@@ -970,21 +979,22 @@
             if (pcOpponents.length >= 8) {
                 alert("מקסימום 8 יריבים");
                 return;
+
             }
-    
-            // 🔥 רק שחקנים פעילים מהטבלה הראשית!
+
+            // רק שחקנים פעילים מהטבלה הראשית
             const activePlayers = players.filter(p => p.active).map(p => p.name);
-    
+
             if (activePlayers.length === 0) {
                 alert("אין שחקנים פעילים בטבלה! סמן ✔ ליד שחקנים פעילים קודם.");
                 return;
             }
-    
+
             const opponentId = pcOpponents.length + 1;
             const opponentDiv = document.createElement("div");
             opponentDiv.id = `pcOpp${opponentId}`;
             opponentDiv.style = "display:flex; gap:8px; align-items:center; padding:8px; background:white; border:1px solid #e2e8f0; border-radius:8px;";
-    
+
             opponentDiv.innerHTML = `
             <select style="flex:1; padding:6px; border:1px solid #cbd5e1; border-radius:6px; font-size:12px;" onchange="pcUpdateOpponentName(${opponentId}, this.value)">
             <option value="">בחר יריב פעיל ${opponentId}</option>
@@ -992,10 +1002,9 @@
             <span style="min-width:80px; text-align:center; font-weight:bold; color:#1e293b;" id="pcOpp${opponentId}Cards">— —</span>
             <button onclick="pcRemoveOpponent(${opponentId})" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:bold;">×</button>
             `;
-    
+            
             document.getElementById("pcOpponentsArea").appendChild(opponentDiv);
-    
-            // 🔥 ממלא רק שחקנים פעילים!
+
             const select = opponentDiv.querySelector("select");
             activePlayers.forEach(name => {
                 const option = document.createElement("option");
@@ -1003,8 +1012,44 @@
                 option.textContent = name;
                 select.appendChild(option);
             });
-    
+
             pcOpponents.push({id: opponentId, name: "", cards: []});
+        }
+
+        // ⬇️ כאן להוסיף את שלב 4:
+
+        function pcCalculateEquity() {
+            if (!pcSelection.hero1 || !pcSelection.hero2) {
+                alert("חסרה היד שלך!");
+                return;
+            }
+    
+            let equityMsg = "חישוב אחוזים:\n\n";
+            equityMsg += `היד שלך: ${pcFormatCard(pcSelection.hero1)} ${pcFormatCard(pcSelection.hero2)}\n`;
+            equityMsg += `לוח: ${document.getElementById("pcBoardDisplay").textContent}\n\n`;
+    
+            pcOpponents.forEach(opp => {
+                if (opp.name) {
+                    equityMsg += `${opp.name}: ${opp.cards.map(pcFormatCard).join(" ")} - `;
+                    equityMsg += opp.cards.length === 2 ? "45% (דוגמה)" : "לא הושלם";
+                    equityMsg += "\n";
+                }
+            });
+    
+            equityMsg += `\n📊 חישוב מלא (עם 3 קלפים שרופים) יגיע בקרוב!`;
+            alert(equityMsg);
+        }
+
+        // ⬆️ עד כאן
+
+        function pcRemoveOpponent(id) {
+            document.getElementById(`pcOpp${id}`).remove();
+            pcOpponents = pcOpponents.filter(opp => opp.id !== id);
+        }
+
+        function pcUpdateOpponentName(id, name) {
+            const opp = pcOpponents.find(o => o.id === id);
+            if (opp) opp.name = name;
         }
 
         function pcRemoveOpponent(id) {
