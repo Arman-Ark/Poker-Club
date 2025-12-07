@@ -847,12 +847,107 @@
             river: null
         };
 
-        function pcCardId(rank, suitCode) { ... }
-        function pcFormatCard(card) { ... }
-        function pcUpdateDisplays() { ... }
-        function pcResetSelection() { ... }
-        function pcOnCardClick(cardId, buttonEl) { ... }
-        function pcInitCardGrid() { ... }
+                function pcCardId(rank, suitCode) {
+            return rank + suitCode; // למשל "As", "10h"
+        }
+
+        function pcFormatCard(card) {
+            if (!card) return "—";
+            const suitMap = { s: "♠", h: "♥", d: "♦", c: "♣" };
+            const suit = card.slice(-1);
+            const rank = card.slice(0, -1);
+            return rank + suitMap[suit];
+        }
+
+        function pcUpdateDisplays() {
+            const hero = [];
+            if (pcSelection.hero1) hero.push(pcFormatCard(pcSelection.hero1));
+            if (pcSelection.hero2) hero.push(pcFormatCard(pcSelection.hero2));
+            document.getElementById("pcHeroDisplay").textContent =
+                hero.length ? hero.join(" ") : "—";
+
+            const board = [];
+            if (pcSelection.flop1) board.push(pcFormatCard(pcSelection.flop1));
+            if (pcSelection.flop2) board.push(pcFormatCard(pcSelection.flop2));
+            if (pcSelection.flop3) board.push(pcFormatCard(pcSelection.flop3));
+            if (pcSelection.turn)  board.push(pcFormatCard(pcSelection.turn));
+            if (pcSelection.river) board.push(pcFormatCard(pcSelection.river));
+            document.getElementById("pcBoardDisplay").textContent =
+                board.length ? board.join(" ") : "—";
+
+            const statusEl = document.getElementById("pcStatus");
+            if (pcStepIndex < pcSteps.length) {
+                statusEl.textContent = pcSteps[pcStepIndex].label;
+            } else {
+                statusEl.textContent = "כל הקלפים נבחרו. אפשר לחשב אחוזים (כשיהיה מוכן).";
+            }
+        }
+
+        function pcResetSelection() {
+            pcStepIndex = 0;
+            for (const k in pcSelection) {
+                pcSelection[k] = null;
+            }
+            const grid = document.getElementById("pcCardGrid");
+            if (grid) {
+                Array.from(grid.querySelectorAll("button")).forEach(btn => {
+                    btn.disabled = false;
+                    btn.style.opacity = "1";
+                });
+            }
+            pcUpdateDisplays();
+        }
+
+        function pcOnCardClick(cardId, buttonEl) {
+            if (pcStepIndex >= pcSteps.length) return;
+
+            // לא לאפשר בחירת אותו קלף פעמיים
+            for (const k in pcSelection) {
+                if (pcSelection[k] === cardId) {
+                    return;
+                }
+            }
+
+            const step = pcSteps[pcStepIndex];
+            pcSelection[step.key] = cardId;
+            pcStepIndex++;
+
+            if (buttonEl) {
+                buttonEl.disabled = true;
+                buttonEl.style.opacity = "0.4";
+            }
+
+            pcUpdateDisplays();
+        }
+
+        function pcInitCardGrid() {
+            const grid = document.getElementById("pcCardGrid");
+            if (!grid) return;
+            grid.innerHTML = "";
+
+            pcSuits.forEach(s => {
+                pcRanks.forEach(r => {
+                    const id = pcCardId(r, s.code);
+                    const btn = document.createElement("button");
+                    btn.textContent = r + s.symbol;
+                    btn.style.padding = "4px 2px";
+                    btn.style.fontSize = "11px";
+                    btn.style.borderRadius = "4px";
+                    btn.style.border = "1px solid #ccc";
+                    btn.style.cursor = "pointer";
+                    btn.style.background = "#f9fafb";
+                    if (s.code === "h" || s.code === "d") {
+                        btn.style.color = "#d32f2f";
+                    } else {
+                        btn.style.color = "#111827";
+                    }
+                    btn.addEventListener("click", function() {
+                        pcOnCardClick(id, btn);
+                    });
+                    grid.appendChild(btn);
+                });
+            });
+        }
 
         // גרסה חדשה של openPokerCalculator שמאתחלת את הגריד
         function openPokerCalculator() {
