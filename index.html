@@ -434,6 +434,15 @@
                 <div>היד שלי: <span id="pcHeroDisplay">—</span></div>
                 <div>לוח (פלופ / טרן / ריבר): <span id="pcBoardDisplay">—</span></div>
             </div>
+                 <!-- אזור יריבים -->
+            <div style="margin-top:12px; padding:12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px;">
+                <h4 style="margin:0 0 10px 0; color:#1e293b; font-size:14px;">יריבים (עד 8 שחקנים)</h4>
+                <div id="pcOpponentsArea" style="display:flex; flex-direction:column; gap:8px; max-height:180px; overflow-y:auto;"></div>
+                <button id="pcAddOpponent" style="width:100%; margin-top:8px; background:#059669; color:white; padding:8px; border:none; border-radius:8px; font-weight:bold; font-size:13px; cursor:pointer;"
+                        onclick="pcAddOpponent()">
+                    ➕ הוסף יריב
+                </button>
+            </div>
 
             <hr style="margin:8px 0;">
 
@@ -881,6 +890,13 @@
             } else {
                 statusEl.textContent = "כל הקלפים נבחרו. אפשר לחשב אחוזים (כשיהיה מוכן).";
             }
+            // עדכון תצוגת יריבים
+            pcOpponents.forEach(opp => {
+                const cardsEl = document.getElementById(`pcOpp${opp.id}Cards`);
+                if (cardsEl) {
+                    cardsEl.textContent = opp.cards.map(pcFormatCard).join(" ") || "— —";
+                }
+            });
         }
 
         function pcResetSelection() {
@@ -947,6 +963,40 @@
                     grid.appendChild(btn);
                 });
             });
+        }
+        let pcOpponents = []; // מערך יריבים
+
+        function pcAddOpponent() {
+            if (pcOpponents.length >= 8) {
+                alert("מקסימום 8 יריבים");
+                return;
+            }
+            
+            const opponentId = pcOpponents.length + 1;
+            const opponentDiv = document.createElement("div");
+            opponentDiv.id = `pcOpp${opponentId}`;
+            opponentDiv.style = "display:flex; gap:8px; align-items:center; padding:8px; background:white; border:1px solid #e2e8f0; border-radius:8px;";
+            
+            opponentDiv.innerHTML = `
+                <select style="flex:1; padding:6px; border:1px solid #cbd5e1; border-radius:6px; font-size:12px;" onchange="pcUpdateOpponentName(${opponentId}, this.value)">
+                    <option value="">שם יריב ${opponentId}</option>
+                </select>
+                <span style="min-width:80px; text-align:center; font-weight:bold; color:#1e293b;" id="pcOpp${opponentId}Cards">— —</span>
+                <button onclick="pcRemoveOpponent(${opponentId})" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:bold;">×</button>
+            `;
+            
+            document.getElementById("pcOpponentsArea").appendChild(opponentDiv);
+            pcOpponents.push({id: opponentId, name: "", cards: []});
+        }
+
+        function pcRemoveOpponent(id) {
+            document.getElementById(`pcOpp${id}`).remove();
+            pcOpponents = pcOpponents.filter(opp => opp.id !== id);
+        }
+
+        function pcUpdateOpponentName(id, name) {
+            const opp = pcOpponents.find(o => o.id === id);
+            if (opp) opp.name = name;
         }
 
         // גרסה חדשה של openPokerCalculator שמאתחלת את הגריד
