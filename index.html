@@ -138,6 +138,19 @@
             width: auto;      /* מבטל את 100% של .btn-sort */
             margin-bottom: 0; /* שלא יהיה רווח כפול מתחת לשורה */
         }
+        /* שני הכפתורים: איפוס כניסות + מי הכי מושקע */
+        .middle-buttons-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .middle-buttons-row .btn-reset-money {
+            flex: 1;
+            width: auto;
+            margin-bottom: 0;
+        }
+
         .full-reset-btn { 
             background: linear-gradient(180deg, #ff5252 0%, #c62828 100%); 
             color: white; 
@@ -348,10 +361,14 @@
     </div>
 
     <div class="top-buttons-row">
-        <button class="btn-sort" onclick="sortPlayers()">מי הכי מושקע הערב?</button>
+        <button class="btn-sort" onclick="openPokerCalculator()">מחשבון פוקר</button>
         <button class="btn-sort personal-stats-btn" onclick="openPersonalStats()">סטטיסטיקה אישית</button>
     </div>
-    <button class="btn-reset-money" onclick="resetMoneyOnly()">איפוס כניסות</button>
+
+    <div class="middle-buttons-row">
+        <button class="btn-reset-money" onclick="resetMoneyOnly()">איפוס כניסות</button>
+        <button class="btn-reset-money" onclick="sortPlayers()">מי הכי מושקע הערב?</button>
+    </div>
 
     <div class="table-container">
         <table class="table" id="playersTable">
