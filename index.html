@@ -971,23 +971,36 @@
                 alert("מקסימום 8 יריבים");
                 return;
             }
-            
+    
             const opponentId = pcOpponents.length + 1;
             const opponentDiv = document.createElement("div");
             opponentDiv.id = `pcOpp${opponentId}`;
             opponentDiv.style = "display:flex; gap:8px; align-items:center; padding:8px; background:white; border:1px solid #e2e8f0; border-radius:8px;";
-            
+    
             opponentDiv.innerHTML = `
-                <select style="flex:1; padding:6px; border:1px solid #cbd5e1; border-radius:6px; font-size:12px;" onchange="pcUpdateOpponentName(${opponentId}, this.value)">
-                    <option value="">שם יריב ${opponentId}</option>
-                </select>
-                <span style="min-width:80px; text-align:center; font-weight:bold; color:#1e293b;" id="pcOpp${opponentId}Cards">— —</span>
-                <button onclick="pcRemoveOpponent(${opponentId})" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:bold;">×</button>
+            <select style="flex:1; padding:6px; border:1px solid #cbd5e1; border-radius:6px; font-size:12px;" onchange="pcUpdateOpponentName(${opponentId}, this.value)">
+            <option value="">בחר יריב ${opponentId}</option>
+            </select>
+            <span style="min-width:80px; text-align:center; font-weight:bold; color:#1e293b;" id="pcOpp${opponentId}Cards">— —</span>
+            <button onclick="pcRemoveOpponent(${opponentId})" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:bold;">×</button>
             `;
-            
+    
             document.getElementById("pcOpponentsArea").appendChild(opponentDiv);
+    
+            // 🔥 שמות אמיתיים מה-defaultPlayers שלך!
+            const playerNames = ["ארמן", "אלכס", "רונן", "טוראל", "ישראל", "שגיא", "ניסים", "איציק", "מיטב", "אלעד", "רון", "דור", "אוראל"];
+    
+            const select = opponentDiv.querySelector("select");
+            playerNames.forEach(name => {
+                const option = document.createElement("option");
+                option.value = name;
+                option.textContent = name;
+                select.appendChild(option);
+            });
+    
             pcOpponents.push({id: opponentId, name: "", cards: []});
         }
+
 
         function pcRemoveOpponent(id) {
             document.getElementById(`pcOpp${id}`).remove();
