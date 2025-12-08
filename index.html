@@ -1108,7 +1108,7 @@
 
             // 🔥 Monte Carlo - 5000 סימולציות
             const iterations = 5000;
-            let results = { hero: 0, ties: 0 };
+            let results = { אני: 0, ties: 0 };
             opponents.forEach(opp => { results[opp.name] = 0; });
 
             const ranks = '23456789TJQKA';
@@ -1175,9 +1175,9 @@
                 if (winners.length === 1) {
                     results[names[winners[0]]] += 1;
                 } else {
-                    results.ties += 1;
+                    const share = 1 / winners.length;
                     winners.forEach(w => {
-                        results[names[w]] += 0.5 / winners.length;
+                        results[names[w]] += share;
                     });
                 }
             }
@@ -1186,15 +1186,12 @@
             let msg = `📊 תוצאות (${iterations} סימולציות):\n\n`;
             const total = iterations;
             Object.keys(results).forEach(name => {
-                if (name !== 'ties') {
-                    const pct = Math.round((results[name] / total) * 1000) / 10;
-                    msg += `${name}: ${pct}%\n`;
-                }
+                const pct = Math.round((results[name] / total) * 1000) / 10;
+                msg += `${name}: ${pct}%\n`;
             });
-            msg += `\nתיקו: ${Math.round((results.ties / total) * 1000) / 10}%`;
-            msg += `\n\n💡 קלפים שרופים: ${burn_count} | לוח ידוע: ${known_board}/5`;
-
+            msg += `\n💡 קלפים שרופים: ${burn_count} | לוח ידוע: ${known_board}/5`;
             alert(msg);
+
         }
         // ⬆️ עד כאן
 
