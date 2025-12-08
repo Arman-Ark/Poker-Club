@@ -1164,6 +1164,8 @@
 
                 // אם למישהו אין יד שלמה – דלג
                 if (hands.some(h => h.length < 2)) continue;
+                
+                console.log("SIM FULL_BOARD:", full_board, "HANDS:", hands);
 
                 // דירוג אמיתי עם pokersolver
                 let scores = hands.map(hand => pcEvaluateHand(hand, full_board));
