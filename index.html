@@ -1060,17 +1060,13 @@
         // ⬇️ כאן להוסיף את שלב 4:
         // הערכת יד אמיתית בעזרת pokersolver
         function pcEvaluateHand(holeCards, boardCards) {
-            // holeCards: ['As','Kd'], boardCards: ['Td','Jh','Qc','2c','3c']
             const all = [...holeCards, ...boardCards].filter(Boolean);
             if (all.length < 5 || typeof Hand === "undefined") {
-                // fallback – קלף גבוה, אם משום מה הספרייה לא זמינה
                 const ranks = '23456789TJQKA';
                 return Math.max(...all.map(c => ranks.indexOf(c[0]) + 2));
             }
             const solved = Hand.solve(all);
-            // pokersolver: rank נמוך = יד חזקה יותר, אז נהפוך לסקלה "גבוה יותר = טוב יותר"
-            // נשתמש בערך הפוך פשוט:
-            return 100000 - solved.rank;
+            return 100000 - solved.rank; // יד חזקה יותר → מספר גבוה יותר
         }
 
         function pcCalculateEquity() {
@@ -1108,13 +1104,16 @@
 
             // 🔥 Monte Carlo - 5000 סימולציות
             const iterations = 5000;
-            let results = { אני: 0, ties: 0 };
+            const heroName = "אני"; // שם אחיד לשחקן שלך
+
+            let results = {};
+            results[heroName] = 0;
             opponents.forEach(opp => { results[opp.name] = 0; });
 
             const ranks = '23456789TJQKA';
             const suits = 'shdc';
 
-            // מצב לוח + שרופים מחושב פעם אחת
+    // מצב לוח + שרופים מחושב פעם אחת
             const known_board = board_cards.filter(c => c).length;
             let burn_count = 0;
             if (known_board === 0)      burn_count = 0; // לפני פלופ
@@ -1151,7 +1150,7 @@
 
                 // חלוקת קלפים ליריבים חסרים
                 let hands = [hero_cards.slice()];
-                let names = ["אתה"];
+                let names = [heroName];
                 opponents.forEach(opp => {
                     let opp_hand = opp.cards.slice();
                     while (opp_hand.length < 2 && deck.length) {
@@ -1161,7 +1160,7 @@
                     names.push(opp.name);
                 });
 
-                // אם למישהו אין יד שלמה – דלג
+                // אם למישהו אין יד שלמה – דלג על הסימולציה
                 if (hands.some(h => h.length < 2)) continue;
 
                 // דירוג אמיתי עם pokersolver
@@ -1172,27 +1171,34 @@
                     if (scores[i] === max_score) winners.push(i);
                 }
 
+    
                 if (winners.length === 1) {
-                    results[names[winners[0]]] += 1;
+                    // מנצח יחיד – נקודה מלאה
+                    const n = names[winners[0]];
+                    results[n] += 1;
                 } else {
+                    // תיקו – כל אחד מקבל חלק שווה
                     const share = 1 / winners.length;
                     winners.forEach(w => {
-                        results[names[w]] += share;
+                        const n = names[w];
+                        results[n] += share;
                     });
                 }
             }
 
-            // תצוגת תוצאות
+            // תצוגת תוצאות – בלי ties, סך הכול ≈ 100%
             let msg = `📊 תוצאות (${iterations} סימולציות):\n\n`;
             const total = iterations;
             Object.keys(results).forEach(name => {
-                const pct = Math.round((results[name] / total) * 1000) / 10;
+                const val = results[name] || 0;
+                const pct = Math.round((val / total) * 1000) / 10;
                 msg += `${name}: ${pct}%\n`;
             });
             msg += `\n💡 קלפים שרופים: ${burn_count} | לוח ידוע: ${known_board}/5`;
-            alert(msg);
 
-        }
+            alert(msg);
+}
+
         // ⬆️ עד כאן
 
         function pcRemoveOpponent(id) {
