@@ -1086,7 +1086,9 @@
                 name: opp.name || `יריב ${opp.id}`,
                 cards: []
             }));
-
+            
+            console.log("HERO:", hero_cards, "BOARD:", board_cards, "OPPONENTS:", opponents);
+            
             // הוספת קלפים ליריבים אם נבחרו (אופציונלי)
             if (pcSelection.opp1_1 && opponents[0]) opponents[0].cards.push(pcSelection.opp1_1);
             if (pcSelection.opp1_2 && opponents[0]) opponents[0].cards.push(pcSelection.opp1_2);
