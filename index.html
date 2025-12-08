@@ -1086,9 +1086,9 @@
                 name: opp.name || `יריב ${opp.id}`,
                 cards: []
             }));
-            
+    
             console.log("HERO:", hero_cards, "BOARD:", board_cards, "OPPONENTS:", opponents);
-            
+    
             // הוספת קלפים ליריבים אם נבחרו (אופציונלי)
             if (pcSelection.opp1_1 && opponents[0]) opponents[0].cards.push(pcSelection.opp1_1);
             if (pcSelection.opp1_2 && opponents[0]) opponents[0].cards.push(pcSelection.opp1_2);
@@ -1104,23 +1104,18 @@
                 return;
             }
 
-            // 🔥 Monte Carlo - 5000 סימולציות
+            // 🔥 Monte Carlo
             const iterations = 30000;
-            const heroName = "אני"; // שם אחיד לשחקן שלך
+            const heroName = "אני";
 
             let results = {};
             results[heroName] = 0;
             opponents.forEach(opp => { results[opp.name] = 0; });
-            
-            // אחרי let results = {} ...
-            let pureWins = {};
-            pureWins[heroName] = 0;
-            opponents.forEach(opp => { pureWins[opp.name] = 0; });
 
             const ranks = '23456789TJQKA';
             const suits = 'shdc';
 
-    // מצב לוח + שרופים מחושב פעם אחת
+            // מצב לוח + שרופים מחושב פעם אחת
             const known_board = board_cards.filter(c => c).length;
             let burn_count = 0;
             if (known_board === 0)      burn_count = 0; // לפני פלופ
@@ -1167,7 +1162,7 @@
                     names.push(opp.name);
                 });
 
-                // אם למישהו אין יד שלמה – דלג על הסימולציה
+                // אם למישהו אין יד שלמה – דלג
                 if (hands.some(h => h.length < 2)) continue;
 
                 // דירוג אמיתי עם pokersolver
@@ -1178,11 +1173,10 @@
                     if (scores[i] === max_score) winners.push(i);
                 }
 
-    
+                // הקצאת נקודות: סה"כ 1 יחידה לסימולציה
                 if (winners.length === 1) {
                     const n = names[winners[0]];
                     results[n] += 1;
-                    pureWins[n] += 1; // ניצחון מוחלט
                 } else {
                     const share = 1 / winners.length;
                     winners.forEach(w => {
@@ -1192,28 +1186,19 @@
                 }
             }
 
-            // תצוגת תוצאות – עם pureWins כדי לא להראות 100% “כמעט”
+            // תצוגת תוצאות – סך הכול ≈ 100%
             let msg = `📊 תוצאות (${iterations} סימולציות):\n\n`;
             const total = iterations;
 
             Object.keys(results).forEach(name => {
                 const val = results[name] || 0;
                 let pct = (val / total) * 100;
-
-                // עיגול לעשירית אחוז
-                pct = Math.round(pct * 10) / 10;
-
-                // אם נראה 100% אבל לא ניצח בכל הריצות – להוריד מעט (למשל 99.9)
-                if (pct === 100 && pureWins[name] < total) {
-                    pct = 99.9;
-                }
-
+                pct = Math.round(pct * 10) / 10; // עיגול לעשירית
                 msg += `${name}: ${pct}%\n`;
             });
 
             msg += `\n💡 קלפים שרופים: ${burn_count} | לוח ידוע: ${known_board}/5`;
             alert(msg);
-
         }
 
         // ⬆️ עד כאן
