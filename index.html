@@ -397,7 +397,7 @@
         </div>
         <div class="bottom-btn-row">
             <button class="full-reset-btn" onclick="openRemovePopup()">הסרת שחקנים</button>
-            <button class="full-reset-btn" onclick="fullReset()">מחק הכל</button>
+            <button class="full-reset-btn" onclick="pcHardReload()">עדכון גרסה</button>
         </div>
     </div>
 
@@ -674,10 +674,27 @@
             }
         }
 
-        function fullReset() {
-            if (confirm('פעולה זאת תמחק את כלל הנתונים בטבלה כולל את רשימת השחקנים, האם אתה בטוח?')) {
-                initPlayers();
-                renderTable();
+        async function pcHardReload() {
+            try {
+                // מחיקת cache-ים של האתר
+                if ('caches' in window) {
+                    const names = await caches.keys();
+                    await Promise.all(names.map(name => caches.delete(name)));
+                }
+
+                // ביטול Service Worker של האתר (אם קיים)
+                if ('serviceWorker' in navigator) {
+                    const regs = await navigator.serviceWorker.getRegistrations();
+                    await Promise.all(regs.map(reg => reg.unregister()));
+                }
+
+                alert("הקבצים השמורים נמחקו.\nהעמוד ייטען מחדש עם הגרסה המעודכנת.");
+
+                // רענון מלא
+                window.location.reload(true);
+            } catch (e) {
+                console.error("pcHardReload error:", e);
+                window.location.reload();
             }
         }
 
