@@ -892,411 +892,406 @@
             overlay.style.display = "none";
         }
 
-        // מצב בחירה למחשבון פוקר
-        const pcRanks = ["A","K","Q","J","10","9","8","7","6","5","4","3","2"];
-        const pcSuits = [
-            { code: "s", symbol: "♠" },
-            { code: "h", symbol: "♥" },
-            { code: "d", symbol: "♦" },
-            { code: "c", symbol: "♣" }
+        // =========================
+        // מחשבון פוקר – שולחן חדש
+        // =========================
+
+        // נתוני מצב לשולחן
+        const eqRanks = ["A","K","Q","J","10","9","8","7","6","5","4","3","2"];
+        const eqSuits = [
+            { code: "s", symbol: "♠", color: "#e5e7eb" },
+            { code: "h", symbol: "♥", color: "#f97373" },
+            { code: "d", symbol: "♦", color: "#60a5fa" },
+            { code: "c", symbol: "♣", color: "#e5e7eb" }
         ];
 
-        let pcStepIndex = 0;
-        const pcSteps = [
-            { key: "hero1", label: "בחר את הקלף הראשון ביד שלך" },
-            { key: "hero2", label: "בחר את הקלף השני ביד שלך" },
-            { key: "flop1", label: "בחר את קלף הפלופ הראשון" },
-            { key: "flop2", label: "בחר את קלף הפלופ השני" },
-            { key: "flop3", label: "בחר את קלף הפלופ השלישי" },
-            { key: "turn",  label: "בחר את קלף הטרן" },
-            { key: "river", label: "בחר את קלף הריבר" },
-
-            // יריב 1
-            { key: "opp1_1", label: "יריב 1 - קלף ראשון" },
-            { key: "opp1_2", label: "יריב 1 - קלף שני" },
-
-            // יריב 2
-            { key: "opp2_1", label: "יריב 2 - קלף ראשון" },
-            { key: "opp2_2", label: "יריב 2 - קלף שני" }
-        ];
-
-        const pcSelection = {
-            hero1: null,
-            hero2: null,
-            flop1: null,
-            flop2: null,
-            flop3: null,
-            turn:  null,
-            river: null,
-            
-            opp1_1: null,
-            opp1_2: null,
-            opp2_1: null,
-            opp2_2: null
+        // מצב כללי של המחשבון
+        const eqState = {
+            // 4 שחקנים, לכל אחד 2 קלפים
+            players: [
+                { id: 0, name: "שחקן 1", cards: [null, null] },
+                { id: 1, name: "שחקן 2", cards: [null, null] },
+                { id: 2, name: "שחקן 3", cards: [null, null] },
+                { id: 3, name: "שחקן 4", cards: [null, null] }
+            ],
+            // לוח – 5 סלוטים חופשיים (פלופ/טרן/ריבר בלי סדר)
+            board: [null, null, null, null, null],
+            // היעד הנוכחי לבחירת קלף
+            currentTarget: null, // { type: 'board'|'player', seatIndex, cardIndex }
+            // תוצאות חישוב אחרונות
+            equities: [null, null, null, null]
         };
 
-                function pcCardId(rank, suitCode) {
-            return rank + suitCode; // למשל "As", "10h"
-                    
-       }
-        function pcSkipCurrentStep() {
-            if (pcStepIndex < pcSteps.length) {
-                pcStepIndex++;      // לא נוגעים ב‑pcSelection, פשוט מדלגים
-                pcUpdateDisplays(); // מעדכן את הטקסט למעלה
-            }
-        }
-
-        function pcFormatCard(card) {
-            if (!card) return "—";
-            const suitMap = { s: "♠", h: "♥", d: "♦", c: "♣" };
-            const suit = card.slice(-1);
-            const rank = card.slice(0, -1);
-            return rank + suitMap[suit];
-        }
-
-        function pcUpdateDisplays() {
-            // היד שלך
-            const hero = [];
-            if (pcSelection.hero1) hero.push(pcFormatCard(pcSelection.hero1));
-            if (pcSelection.hero2) hero.push(pcFormatCard(pcSelection.hero2));
-            document.getElementById("pcHeroDisplay").textContent =
-                hero.length ? hero.join(" ") : "—";
-
-            // הלוח
-            const board = [];
-            if (pcSelection.flop1) board.push(pcFormatCard(pcSelection.flop1));
-            if (pcSelection.flop2) board.push(pcFormatCard(pcSelection.flop2));
-            if (pcSelection.flop3) board.push(pcFormatCard(pcSelection.flop3));
-            if (pcSelection.turn)  board.push(pcFormatCard(pcSelection.turn));
-            if (pcSelection.river) board.push(pcFormatCard(pcSelection.river));
-            document.getElementById("pcBoardDisplay").textContent =
-                board.length ? board.join(" ") : "—";
-
-            // טקסט מצב בחירה
-            const statusEl = document.getElementById("pcStatus");
-            if (pcStepIndex < pcSteps.length) {
-                statusEl.textContent = pcSteps[pcStepIndex].label;
-            } else {
-                statusEl.textContent = "כל הקלפים נבחרו. אפשר לחשב אחוזים (כשיהיה מוכן).";
-            }
-
-            // עדכון תצוגת יריבים + שמירת קלפים שלהם
-            pcOpponents.forEach(opp => {
-                const cardsEl = document.getElementById(`pcOpp${opp.id}Cards`);
-                if (!cardsEl) return;
-
-                let c1 = null;
-                let c2 = null;
-
-                if (opp.id === 1) {
-                    c1 = pcSelection.opp1_1;
-                    c2 = pcSelection.opp1_2;
-                } else if (opp.id === 2) {
-                    c1 = pcSelection.opp2_1;
-                    c2 = pcSelection.opp2_2;
-                }
-
-                const cards = [];
-                if (c1) cards.push(pcFormatCard(c1));
-                if (c2) cards.push(pcFormatCard(c2));
-
-                cardsEl.textContent = cards.length ? cards.join(" ") : "— —";
-
-                // שמירה במבנה הנתונים עבור החישוב
-                opp.cards = [];
-                if (c1) opp.cards.push(c1);
-                if (c2) opp.cards.push(c2);
-            });
-        }
-
-        function pcResetSelection() {
-            pcStepIndex = 0;
-            for (const k in pcSelection) {
-                pcSelection[k] = null;
-            }
-            const grid = document.getElementById("pcCardGrid");
-            if (grid) {
-                Array.from(grid.querySelectorAll("button")).forEach(btn => {
-                    btn.disabled = false;
-                    btn.style.opacity = "1";
-                });
-            }
-            pcUpdateDisplays();
-        }
-
-        function pcOnCardClick(cardId, buttonEl) {
-            if (pcStepIndex >= pcSteps.length) return;
-
-            // לא לאפשר בחירת אותו קלף פעמיים
-            for (const k in pcSelection) {
-                if (pcSelection[k] === cardId) {
-                    return;
-                }
-            }
-
-            const step = pcSteps[pcStepIndex];
-            pcSelection[step.key] = cardId;
-            pcStepIndex++;
-
-            if (buttonEl) {
-                buttonEl.disabled = true;
-                buttonEl.style.opacity = "0.4";
-            }
-
-            pcUpdateDisplays();
-        }
-
-        function pcInitCardGrid() {
-            const grid = document.getElementById("pcCardGrid");
-            if (!grid) return;
-            grid.innerHTML = "";
-
-            pcSuits.forEach(s => {
-                pcRanks.forEach(r => {
-                    const id = pcCardId(r, s.code);
-                    const btn = document.createElement("button");
-                    btn.textContent = r + s.symbol;
-                    btn.style.padding = "4px 2px";
-                    btn.style.fontSize = "11px";
-                    btn.style.borderRadius = "4px";
-                    btn.style.border = "1px solid #ccc";
-                    btn.style.cursor = "pointer";
-                    btn.style.background = "#f9fafb";
-                    if (s.code === "h" || s.code === "d") {
-                        btn.style.color = "#d32f2f";
-                    } else {
-                        btn.style.color = "#111827";
-                    }
-                    btn.addEventListener("click", function() {
-                        pcOnCardClick(id, btn);
-                    });
-                    grid.appendChild(btn);
-                });
-            });
-        }
-        let pcOpponents = []; // מערך יריבים
-
-        function pcAddOpponent() {
-            if (pcOpponents.length >= 8) {
-                alert("מקסימום 8 יריבים");
-                return;
-
-            }
-
-            // רק שחקנים פעילים מהטבלה הראשית
-            const activePlayers = players.filter(p => p.active).map(p => p.name);
-
-            if (activePlayers.length === 0) {
-                alert("אין שחקנים פעילים בטבלה! סמן ✔ ליד שחקנים פעילים קודם.");
-                return;
-            }
-
-            const opponentId = pcOpponents.length + 1;
-            const opponentDiv = document.createElement("div");
-            opponentDiv.id = `pcOpp${opponentId}`;
-            opponentDiv.style = "display:flex; gap:8px; align-items:center; padding:8px; background:white; border:1px solid #e2e8f0; border-radius:8px;";
-
-            opponentDiv.innerHTML = `
-            <select style="flex:1; padding:6px; border:1px solid #cbd5e1; border-radius:6px; font-size:12px;" onchange="pcUpdateOpponentName(${opponentId}, this.value)">
-            <option value="">בחר יריב פעיל ${opponentId}</option>
-            </select>
-            <span style="min-width:80px; text-align:center; font-weight:bold; color:#1e293b;" id="pcOpp${opponentId}Cards">— —</span>
-            <button onclick="pcRemoveOpponent(${opponentId})" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:bold;">×</button>
-            `;
-            
-            document.getElementById("pcOpponentsArea").appendChild(opponentDiv);
-
-            const select = opponentDiv.querySelector("select");
-            activePlayers.forEach(name => {
-                const option = document.createElement("option");
-                option.value = name;
-                option.textContent = name;
-                select.appendChild(option);
-            });
-
-            pcOpponents.push({id: opponentId, name: "", cards: []});
-        }
-
-        // ⬇️ כאן להוסיף את שלב 4:
-        // הערכת יד אמיתית בעזרת pokersolver
-        function pcEvaluateHand(holeCards, boardCards) {
-            const all = [...holeCards, ...boardCards].filter(Boolean);
-            if (all.length < 5 || typeof Hand === "undefined") {
-                const ranks = '23456789TJQKA';
-                return Math.max(...all.map(c => ranks.indexOf(c[0]) + 2));
-            }
-            const solved = Hand.solve(all);
-            return 100000 - solved.rank; // יד חזקה יותר → מספר גבוה יותר
-        }
-
-        function pcCalculateEquity() {
-            alert("Monte Carlo v2");
-            // איסוף נתונים מהמצב הנוכחי
-            const hero_cards = [];
-            if (pcSelection.hero1) hero_cards.push(pcSelection.hero1);
-            if (pcSelection.hero2) hero_cards.push(pcSelection.hero2);
-
-            const board_cards = [];
-            if (pcSelection.flop1) board_cards.push(pcSelection.flop1);
-            if (pcSelection.flop2) board_cards.push(pcSelection.flop2);
-            if (pcSelection.flop3) board_cards.push(pcSelection.flop3);
-            if (pcSelection.turn)  board_cards.push(pcSelection.turn);
-            if (pcSelection.river) board_cards.push(pcSelection.river);
-
-            const opponents = pcOpponents.map(opp => ({
-                name: opp.name || `יריב ${opp.id}`,
-                cards: []
-            }));
-    
-            console.log("HERO:", hero_cards, "BOARD:", board_cards, "OPPONENTS:", opponents);
-    
-            // הוספת קלפים ליריבים אם נבחרו (אופציונלי)
-            if (pcSelection.opp1_1 && opponents[0]) opponents[0].cards.push(pcSelection.opp1_1);
-            if (pcSelection.opp1_2 && opponents[0]) opponents[0].cards.push(pcSelection.opp1_2);
-            if (pcSelection.opp2_1 && opponents[1]) opponents[1].cards.push(pcSelection.opp2_1);
-            if (pcSelection.opp2_2 && opponents[1]) opponents[1].cards.push(pcSelection.opp2_2);
-
-            if (hero_cards.length < 2) {
-                alert("בחר לפחות 2 קלפים ליד שלך");
-                return;
-            }
-            if (pcOpponents.length === 0) {
-                alert("הוסף לפחות יריב אחד");
-                return;
-            }
-
-            // 🔥 Monte Carlo
-            const iterations = 30000;
-            const heroName = "אני";
-
-            let results = {};
-            results[heroName] = 0;
-            opponents.forEach(opp => { results[opp.name] = 0; });
-
-            const ranks = '23456789TJQKA';
-            const suits = 'shdc';
-
-            // מצב לוח + שרופים מחושב פעם אחת
-            const known_board = board_cards.filter(c => c).length;
-            let burn_count = 0;
-            if (known_board === 0)      burn_count = 0; // לפני פלופ
-            else if (known_board === 3) burn_count = 1; // אחרי פלופ
-            else if (known_board === 4) burn_count = 2; // אחרי טרן
-            else                        burn_count = 3; // אחרי ריבר
-
-            for (let sim = 0; sim < iterations; sim++) {
-                // חפיסה מלאה
-                let deck = [];
-                for (let r of ranks) for (let s of suits) deck.push(r + s);
-
-                // הסרת קלפים ידועים
-                [...hero_cards, ...board_cards].forEach(card => {
-                    const i = deck.indexOf(card);
-                    if (i > -1) deck.splice(i, 1);
-                });
-                opponents.forEach(opp => opp.cards.forEach(card => {
-                    const i = deck.indexOf(card);
-                    if (i > -1) deck.splice(i, 1);
-                }));
-
-                // שריפת קלפים
-                for (let i = 0; i < burn_count && deck.length; i++) {
-                    deck.shift();
-                }
-
-                // השלמת לוח
-                let full_board = [...board_cards.filter(c => c)];
-                const needed_board = 5 - known_board;
-                for (let i = 0; i < needed_board && deck.length; i++) {
-                    full_board.push(deck.shift());
-                }
-
-                // חלוקת קלפים ליריבים חסרים
-                let hands = [hero_cards.slice()];
-                let names = [heroName];
-                opponents.forEach(opp => {
-                    let opp_hand = opp.cards.slice();
-                    while (opp_hand.length < 2 && deck.length) {
-                        opp_hand.push(deck.shift());
-                    }
-                    hands.push(opp_hand);
-                    names.push(opp.name);
-                });
-
-                // אם למישהו אין יד שלמה – דלג
-                if (hands.some(h => h.length < 2)) continue;
-                
-                console.log("SIM FULL_BOARD:", full_board, "HANDS:", hands);
-
-                // דירוג אמיתי עם pokersolver
-                let scores = hands.map(hand => pcEvaluateHand(hand, full_board));
-                let max_score = Math.max(...scores);
-                let winners = [];
-                for (let i = 0; i < scores.length; i++) {
-                    if (scores[i] === max_score) winners.push(i);
-                }
-
-                // הקצאת נקודות: סה"כ 1 יחידה לסימולציה
-                if (winners.length === 1) {
-                    const n = names[winners[0]];
-                    results[n] += 1;
-                } else {
-                    const share = 1 / winners.length;
-                    winners.forEach(w => {
-                        const n = names[w];
-                        results[n] += share;
-                    });
-                }
-            }
-
-            // תצוגת תוצאות – סך הכול ≈ 100%
-            let msg = `📊 תוצאות (${iterations} סימולציות):\n\n`;
-            const total = iterations;
-
-            Object.keys(results).forEach(name => {
-                const val = results[name] || 0;
-                let pct = (val / total) * 100;
-                pct = Math.round(pct * 10) / 10; // עיגול לעשירית
-                msg += `${name}: ${pct}%\n`;
-            });
-
-            msg += `\n💡 קלפים שרופים: ${burn_count} | לוח ידוע: ${known_board}/5`;
-            alert(msg);
-        }
-
-        // ⬆️ עד כאן
-
-        function pcRemoveOpponent(id) {
-            document.getElementById(`pcOpp${id}`).remove();
-            pcOpponents = pcOpponents.filter(opp => opp.id !== id);
-        }
-
-        function pcUpdateOpponentName(id, name) {
-            const opp = pcOpponents.find(o => o.id === id);
-            if (opp) opp.name = name;
-        }
-
-        function pcRemoveOpponent(id) {
-            document.getElementById(`pcOpp${id}`).remove();
-            pcOpponents = pcOpponents.filter(opp => opp.id !== id);
-        }
-
-        function pcUpdateOpponentName(id, name) {
-            const opp = pcOpponents.find(o => o.id === id);
-            if (opp) opp.name = name;
-        }
-
-        // גרסה חדשה של openPokerCalculator שמאתחלת את הגריד
+        // פתיחת מחשבון – שולחן
         function openPokerCalculator() {
             const overlay = document.getElementById("pokerCalcOverlay");
             overlay.style.display = "flex";
             overlay.style.justifyContent = "center";
             overlay.style.alignItems = "center";
 
-            pcInitCardGrid();
-            pcResetSelection();
+            eqInitBoardSlots();
+            eqInitSeatCards();
+            eqInitCardGrid();
+            eqRenderAll();
         }
 
+        function closePokerCalculator() {
+            const overlay = document.getElementById("pokerCalcOverlay");
+            overlay.style.display = "none";
+        }
+
+        // איפוס כללי של השולחן
+        function eqResetAll() {
+            eqState.players.forEach(p => {
+                p.cards[0] = null;
+                p.cards[1] = null;
+            });
+            for (let i = 0; i < 5; i++) {
+                eqState.board[i] = null;
+            }
+            eqState.currentTarget = null;
+            eqState.equities = [null, null, null, null];
+            eqRenderAll();
+        }
+
+        // יצירת סלוטים ללוח (5)
+        function eqInitBoardSlots() {
+            const boardEl = document.getElementById("eqBoard");
+            boardEl.innerHTML = "";
+            for (let i = 0; i < 5; i++) {
+                const slot = document.createElement("div");
+                slot.dataset.type = "board";
+                slot.dataset.index = i;
+                slot.onclick = () => eqSelectTarget("board", null, i);
+                slot.style.width = "34px";
+                slot.style.height = "48px";
+                slot.style.borderRadius = "6px";
+                slot.style.border = "1px dashed rgba(148,163,184,0.9)";
+                slot.style.display = "flex";
+                slot.style.alignItems = "center";
+                slot.style.justifyContent = "center";
+                slot.style.fontSize = "18px";
+                slot.style.color = "#e5e7eb";
+                slot.style.background = "rgba(15,23,42,0.9)";
+                slot.style.cursor = "pointer";
+                slot.style.transition = "box-shadow 0.1s, border-color 0.1s";
+
+                slot.textContent = "+";
+                boardEl.appendChild(slot);
+            }
+        }
+
+        // יצירת סלוטים לכל שחקן (2)
+        function eqInitSeatCards() {
+            for (let seat = 0; seat < 4; seat++) {
+                const container = document.querySelector(`[data-seat-cards="${seat}"]`);
+                if (!container) continue;
+                container.innerHTML = "";
+                for (let i = 0; i < 2; i++) {
+                    const cardDiv = document.createElement("div");
+                    cardDiv.dataset.type = "player";
+                    cardDiv.dataset.seat = seat;
+                    cardDiv.dataset.index = i;
+                    cardDiv.onclick = () => eqSelectTarget("player", seat, i);
+                    cardDiv.style.width = "30px";
+                    cardDiv.style.height = "42px";
+                    cardDiv.style.borderRadius = "6px";
+                    cardDiv.style.border = "1px dashed rgba(148,163,184,0.9)";
+                    cardDiv.style.display = "flex";
+                    cardDiv.style.alignItems = "center";
+                    cardDiv.style.justifyContent = "center";
+                    cardDiv.style.fontSize = "16px";
+                    cardDiv.style.color = "#e5e7eb";
+                    cardDiv.style.background = "rgba(15,23,42,0.9)";
+                    cardDiv.style.cursor = "pointer";
+                    cardDiv.style.transition = "box-shadow 0.1s, border-color 0.1s";
+
+                    cardDiv.textContent = "+";
+                    container.appendChild(cardDiv);
+                }
+            }
+        }
+
+        // בחירת יעד (סלוט בלוח או קלף של שחקן)
+        function eqSelectTarget(type, seatIndex, cardIndex) {
+            eqState.currentTarget = { type, seatIndex, cardIndex };
+
+            // ננקה היילייט קודם
+            document.querySelectorAll("#eqTable div[data-type]").forEach(el => {
+                el.style.boxShadow = "";
+                el.style.borderColor = "rgba(148,163,184,0.9)";
+            });
+
+            // נסמן את היעד הנוכחי
+            if (type === "board") {
+                const all = document.querySelectorAll("#eqBoard div[data-type='board']");
+                const slot = all[cardIndex];
+                if (slot) {
+                    slot.style.boxShadow = "0 0 6px rgba(56,189,248,0.9)";
+                    slot.style.borderColor = "#22c55e";
+                }
+            } else if (type === "player") {
+                const selector = `[data-type='player'][data-seat='${seatIndex}'][data-index='${cardIndex}']`;
+                const el = document.querySelector(selector);
+                if (el) {
+                    el.style.boxShadow = "0 0 6px rgba(56,189,248,0.9)";
+                    el.style.borderColor = "#22c55e";
+                }
+            }
+        }
+
+        // יצירת רשת קלפים קומפקטית (כמו 888)
+        function eqInitCardGrid() {
+            const grid = document.getElementById("eqCardGrid");
+            grid.innerHTML = "";
+
+            eqSuits.forEach(suit => {
+                eqRanks.forEach(rank => {
+                    const btn = document.createElement("button");
+                    btn.type = "button";
+                    btn.textContent = rank + suit.symbol;
+                    btn.style.padding = "4px 2px";
+                    btn.style.borderRadius = "6px";
+                    btn.style.border = "none";
+                    btn.style.fontSize = "11px";
+                    btn.style.cursor = "pointer";
+                    btn.style.background = "rgba(15,23,42,0.95)";
+                    btn.style.color = suit.color;
+                    btn.style.boxShadow = "0 2px 0 rgba(0,0,0,0.6)";
+                    btn.style.transition = "transform 0.05s, box-shadow 0.05s, filter 0.1s";
+
+                    btn.onmousedown = () => {
+                        btn.style.transform = "translateY(1px)";
+                        btn.style.boxShadow = "0 1px 0 rgba(0,0,0,0.7)";
+                    };
+                    btn.onmouseup = () => {
+                        btn.style.transform = "translateY(0)";
+                        btn.style.boxShadow = "0 2px 0 rgba(0,0,0,0.6)";
+                    };
+
+                    const cardId = eqMakeCardId(rank, suit.code);
+                    btn.dataset.cardId = cardId;
+
+                    btn.onclick = () => eqOnCardGridClick(cardId);
+
+                    grid.appendChild(btn);
+                });
+            });
+        }
+
+        function eqMakeCardId(rank, suitCode) {
+            return rank + suitCode; // למשל "As", "10h"
+        }
+
+        // הסרת קלף מכל מקום שבו הוא נמצא כרגע
+        function eqRemoveCardEverywhere(cardId) {
+            // לוח
+            for (let i = 0; i < 5; i++) {
+                if (eqState.board[i] === cardId) {
+                    eqState.board[i] = null;
+                }
+            }
+            // שחקנים
+            eqState.players.forEach(p => {
+                for (let i = 0; i < 2; i++) {
+                    if (p.cards[i] === cardId) {
+                        p.cards[i] = null;
+                    }
+                }
+            });
+        }
+
+        // קליק על קלף ברשת
+        function eqOnCardGridClick(cardId) {
+            const t = eqState.currentTarget;
+            if (!t) {
+                // אם אין יעד נבחר – ננסה למלא ברירת מחדל: קודם לוח, אחר כך שחקנים
+                eqAutoPlaceCard(cardId);
+                return;
+            }
+
+            // נוודא שהקלף לא כפול
+            eqRemoveCardEverywhere(cardId);
+
+            if (t.type === "board") {
+                eqState.board[t.cardIndex] = cardId;
+            } else if (t.type === "player" && typeof t.seatIndex === "number") {
+                eqState.players[t.seatIndex].cards[t.cardIndex] = cardId;
+            }
+
+            eqRenderAll();
+            eqScheduleEquity();
+        }
+
+        // הצבה אוטומטית אם אין יעד מוגדר
+        function eqAutoPlaceCard(cardId) {
+            // נוודא שהקלף לא כפול
+            eqRemoveCardEverywhere(cardId);
+
+            // קודם לוח
+            for (let i = 0; i < 5; i++) {
+                if (!eqState.board[i]) {
+                    eqState.board[i] = cardId;
+                    eqRenderAll();
+                    eqScheduleEquity();
+                    return;
+                }
+            }
+
+            // אחר כך שחקני 1–4
+            for (let s = 0; s < eqState.players.length; s++) {
+                for (let i = 0; i < 2; i++) {
+                    if (!eqState.players[s].cards[i]) {
+                        eqState.players[s].cards[i] = cardId;
+                        eqRenderAll();
+                        eqScheduleEquity();
+                        return;
+                    }
+                }
+            }
+
+            eqRenderAll();
+            eqScheduleEquity();
+        }
+
+        // רינדור כללי של השולחן
+        function eqRenderAll() {
+            // לוח
+            const boardSlots = document.querySelectorAll("#eqBoard div[data-type='board']");
+            for (let i = 0; i < 5; i++) {
+                const slot = boardSlots[i];
+                if (!slot) continue;
+                const card = eqState.board[i];
+                if (card) {
+                    slot.textContent = eqFormatCard(card);
+                } else {
+                    slot.textContent = "+";
+                }
+            }
+
+            // שחקנים
+            eqState.players.forEach((p, seat) => {
+                const cardsDiv = document.querySelectorAll(`[data-seat-cards="${seat}"] div[data-type='player']`);
+                for (let i = 0; i < 2; i++) {
+                    const el = cardsDiv[i];
+                    if (!el) continue;
+                    const card = p.cards[i];
+                    el.textContent = card ? eqFormatCard(card) : "+";
+                }
+
+                const eqLabel = document.querySelector(`[data-seat-equity="${seat}"]`);
+                if (eqLabel) {
+                    const val = eqState.equities[seat];
+                    eqLabel.textContent = (val != null) ? (val.toFixed(1) + "%") : "—";
+                }
+            });
+
+            // ננקה היילייט אם אין יעד
+            if (!eqState.currentTarget) {
+                document.querySelectorAll("#eqTable div[data-type]").forEach(el => {
+                    el.style.boxShadow = "";
+                    el.style.borderColor = "rgba(148,163,184,0.9)";
+                });
+            }
+        }
+
+        function eqFormatCard(card) {
+            const suitMap = { s: "♠", h: "♥", d: "♦", c: "♣" };
+            const suit = card.slice(-1);
+            const rank = card.slice(0, -1);
+            return rank + suitMap[suit];
+        }
+
+        // =========================
+        // חישוב Equity (Monte Carlo)
+        // =========================
+
+        let eqTimer = null;
+
+        function eqScheduleEquity() {
+            if (eqTimer) clearTimeout(eqTimer);
+            eqTimer = setTimeout(eqRunEquity, 250);
+        }
+
+        function eqRunEquity() {
+            // מכינים רשימת שחקנים עם 2 קלפים מלאים
+            const activePlayers = eqState.players
+                .map((p, idx) => ({ idx, cards: p.cards.slice() }))
+                .filter(p => p.cards[0] && p.cards[1]);
+
+            if (activePlayers.length < 2) {
+                eqState.equities = [null, null, null, null];
+                eqRenderAll();
+                return;
+            }
+
+            const boardCards = eqState.board.filter(c => c);
+            if (boardCards.length > 5) return;
+
+            const iterations = 20000;
+            const results = new Array(eqState.players.length).fill(0);
+
+            const ranks = "23456789TJQKA";
+            const suits = "shdc";
+
+            function evalHand(hole, board) {
+                const all = hole.concat(board);
+                if (typeof Hand === "undefined" || all.length < 5) {
+                    // fallback גס: קלף גבוה
+                    return Math.max(...all.map(c => ranks.indexOf(c[0]) + 2));
+                }
+                const solved = Hand.solve(all);
+                return 100000 - solved.rank; // חזק יותר => מספר גדול יותר
+            }
+
+            for (let sim = 0; sim < iterations; sim++) {
+                // חפיסה מלאה
+                let deck = [];
+                for (let r of ranks) for (let s of suits) deck.push(r + s);
+
+                // הסרת כל הקלפים הידועים (שחקנים + לוח)
+                activePlayers.forEach(p => {
+                    p.cards.forEach(c => {
+                        const i = deck.indexOf(c);
+                        if (i > -1) deck.splice(i, 1);
+                    });
+                });
+                boardCards.forEach(c => {
+                    const i = deck.indexOf(c);
+                    if (i > -1) deck.splice(i, 1);
+                });
+
+                // השלמת לוח ל‑5
+                const knownBoard = boardCards.slice();
+                const needed = 5 - knownBoard.length;
+                for (let i = 0; i < needed && deck.length; i++) {
+                    knownBoard.push(deck.shift());
+                }
+
+                // דירוג לכל שחקן פעיל
+                const scores = activePlayers.map(p => evalHand(p.cards, knownBoard));
+                const maxScore = Math.max(...scores);
+                const winners = [];
+                for (let i = 0; i < scores.length; i++) {
+                    if (scores[i] === maxScore) winners.push(i);
+                }
+
+                if (winners.length === 1) {
+                    const winnerPlayer = activePlayers[winners[0]];
+                    results[winnerPlayer.idx] += 1;
+                } else {
+                    const share = 1 / winners.length;
+                    winners.forEach(w => {
+                        const wp = activePlayers[w];
+                        results[wp.idx] += share;
+                    });
+                }
+            }
+
+            const total = iterations;
+            eqState.equities = results.map(val => val ? (val / total * 100) : null);
+            eqRenderAll();
+        }
 
         function closePersonalStats() {
             document.getElementById("personalStatsOverlay").style.display = "none";
