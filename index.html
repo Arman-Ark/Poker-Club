@@ -420,58 +420,101 @@
             </div>
         </div>
     </div>
-        <!-- פופאפ מחשבון פוקר -->
-            <div id="pokerCalcOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1003; justify-content:center; align-items:center;">
-                <div style="background:#ffffff; max-width:420px; width:90%; max-height:80vh; border-radius:16px; padding:14px; box-shadow:0 12px 24px rgba(0,0,0,0.5); font-size:13px; overflow-y:auto;">
-                    <h3 style="margin:0 0 8px 0; text-align:center;">מחשבון פוקר</h3>
+    
+    <!-- פופאפ מחשבון פוקר – שולחן חדש -->
+    <div id="pokerCalcOverlay"
+         style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1003; justify-content:center; align-items:center;">
 
-            <!-- מצב בחירה נוכחי -->
-            <div id="pcStatus" style="margin-bottom:8px; font-size:12px; text-align:center; font-weight:bold;">
-                בחר את הקלף הראשון ביד שלך
+        <div id="eqTableWrapper"
+             style="background:#0b1722; max-width:480px; width:95%; max-height:90vh; border-radius:18px;
+                    padding:10px; box-shadow:0 12px 24px rgba(0,0,0,0.7); font-size:13px; color:#e5e7eb;
+                    display:flex; flex-direction:column;">
+
+            <div style="text-align:center; margin-bottom:6px;">
+                <div style="font-size:16px; font-weight:bold; margin-bottom:2px;">מחשבון פוקר – שולחן</div>
+                <div style="font-size:11px; opacity:0.8;">בחר קלפים לשחקנים וללוח, החישוב יתעדכן אוטומטית</div>
             </div>
 
-            <!-- סיכום בחירות (תצוגה טקסטואלית) -->
-            <div style="margin-bottom:8px; font-size:12px;">
-                <div>היד שלי: <span id="pcHeroDisplay">—</span></div>
-                <div>לוח (פלופ / טרן / ריבר): <span id="pcBoardDisplay">—</span></div>
+            <!-- אזור שולחן -->
+            <div id="eqTable"
+                 style="position:relative; background:radial-gradient(circle at top, #1f2937 0%, #020617 65%);
+                        border-radius:999px; padding:24px 10px; margin-bottom:8px; box-shadow:inset 0 0 20px #000;
+                        border:2px solid #16a34a;">
+
+                <!-- לוח (5 סלוטים חופשיים) -->
+                <div id="eqBoard"
+                     style="position:absolute; left:50%; top:50%; transform:translate(-50%, -50%);
+                            display:flex; gap:4px;">
+                    <!-- ימולא ב‑JS -->
+                </div>
+
+                <!-- שחקנים 1–4 -->
+                <!-- שחקן 1 – למעלה -->
+                <div class="eq-seat" data-seat="0"
+                     style="position:absolute; left:50%; top:4%; transform:translateX(-50%);
+                            display:flex; flex-direction:column; align-items:center; gap:3px;">
+                    <div class="eq-seat-name" style="font-size:11px;">שחקן 1</div>
+                    <div class="eq-seat-cards" data-seat-cards="0" style="display:flex; gap:3px;"></div>
+                    <div class="eq-seat-equity" data-seat-equity="0" style="font-size:11px; opacity:0.8;">—</div>
+                </div>
+
+                <!-- שחקן 2 – ימין -->
+                <div class="eq-seat" data-seat="1"
+                     style="position:absolute; right:5%; top:50%; transform:translateY(-50%);
+                            display:flex; flex-direction:column; align-items:center; gap:3px;">
+                    <div class="eq-seat-name" style="font-size:11px;">שחקן 2</div>
+                    <div class="eq-seat-cards" data-seat-cards="1" style="display:flex; gap:3px;"></div>
+                    <div class="eq-seat-equity" data-seat-equity="1" style="font-size:11px; opacity:0.8;">—</div>
+                </div>
+
+                <!-- שחקן 3 – למטה -->
+                <div class="eq-seat" data-seat="2"
+                     style="position:absolute; left:50%; bottom:4%; transform:translateX(-50%);
+                            display:flex; flex-direction:column; align-items:center; gap:3px;">
+                    <div class="eq-seat-name" style="font-size:11px;">שחקן 3</div>
+                    <div class="eq-seat-cards" data-seat-cards="2" style="display:flex; gap:3px;"></div>
+                    <div class="eq-seat-equity" data-seat-equity="2" style="font-size:11px; opacity:0.8;">—</div>
+                </div>
+
+                <!-- שחקן 4 – שמאל -->
+                <div class="eq-seat" data-seat="3"
+                     style="position:absolute; left:5%; top:50%; transform:translateY(-50%);
+                            display:flex; flex-direction:column; align-items:center; gap:3px;">
+                    <div class="eq-seat-name" style="font-size:11px;">שחקן 4</div>
+                    <div class="eq-seat-cards" data-seat-cards="3" style="display:flex; gap:3px;"></div>
+                    <div class="eq-seat-equity" data-seat-equity="3" style="font-size:11px; opacity:0.8;">—</div>
+                </div>
+
             </div>
-                 <!-- אזור יריבים -->
-            <div style="margin-top:12px; padding:12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px;">
-                <h4 style="margin:0 0 10px 0; color:#1e293b; font-size:14px;">יריבים (עד 8 שחקנים)</h4>
-                <div id="pcOpponentsArea" style="display:flex; flex-direction:column; gap:8px; max-height:180px; overflow-y:auto;"></div>
-                <button id="pcAddOpponent" style="width:100%; margin-top:8px; background:#059669; color:white; padding:8px; border:none; border-radius:8px; font-weight:bold; font-size:13px; cursor:pointer;"
-                        onclick="pcAddOpponent()">
-                    ➕ הוסף יריב
+
+            <!-- רשת קלפים קומפקטית -->
+            <div style="background:#020617; border-radius:12px; padding:6px; margin-bottom:6px;
+                        border:1px solid #1e293b;">
+                <div style="font-size:11px; margin-bottom:4px; text-align:center; opacity:0.9;">
+                    לחץ על מושב או על סלוט בלוח ואז בחר קלף מהרשת
+                </div>
+                <div id="eqCardGrid"
+                     style="display:grid; grid-template-columns:repeat(13, minmax(0, 1fr)); gap:3px; font-size:11px;">
+                    <!-- ימולא ב‑JS -->
+                </div>
+            </div>
+
+            <!-- כפתורי תחתית -->
+            <div style="display:flex; flex-direction:column; gap:6px; margin-top:4px;">
+                <button style="width:100%; background:linear-gradient(180deg,#22c55e 0%,#15803d 100%);
+                               color:white; padding:8px; border:none; border-radius:10px; font-weight:bold;
+                               cursor:pointer; font-size:13px;"
+                        onclick="eqResetAll()">
+                    אפס שולחן
                 </button>
-                <button id="pcSkipStep" 
-                    style="width:100%; margin-top:6px; background:#e5e7eb; color:#111827; padding:6px; border:none; border-radius:8px; font-weight:bold; font-size:12px; cursor:pointer;"
-                    onclick="pcSkipCurrentStep()">
-                    ללא קלף (דלג לשלב הבא)
-                </button>
-            </div>
-
-            <hr style="margin:8px 0;">
-
-            <!-- מקלדת קלפים: 4 שורות (♠ ♥ ♦ ♣) × 13 ערכים -->
-            <div id="pcCardGrid" style="display:grid; grid-template-columns: repeat(13, 1fr); gap:4px; font-size:12px;">
-                <!-- יוצג ע\"י JS -->
-            </div>
-
-            <!-- כפתורים תחתונים -->
-            <div style="display:flex; flex-direction:column; gap:6px; margin-top:10px;">
-                <button style="width:100%; background:linear-gradient(180deg,#42a5f5 0%,#1565c0 100%); color:white; padding:8px; border:none; border-radius:10px; font-weight:bold; cursor:pointer;"
-                    onclick="pcCalculateEquity()">
-                    חשב אחוזים
-                </button>
-                <button style="width:100%; background:linear-gradient(180deg,#4cd964 0%,#2e7d32 100%); color:white; padding:8px; border:none; border-radius:10px; font-weight:bold; cursor:pointer;"
+                <button style="width:100%; background:linear-gradient(180deg,#9e9e9e 0%,#616161 100%);
+                               color:white; padding:8px; border:none; border-radius:10px; font-weight:bold;
+                               cursor:pointer; font-size:13px;"
                         onclick="closePokerCalculator()">
                     סגור
                 </button>
-                <button style="width:100%; background:linear-gradient(180deg,#9e9e9e 0%,#616161 100%); color:white; padding:8px; border:none; border-radius:10px; font-weight:bold; cursor:pointer;"
-                        onclick="pcResetSelection()">
-                    אפס בחירת קלפים במחשבון
-                </button>
             </div>
+
         </div>
     </div>
 
